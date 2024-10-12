@@ -8,10 +8,17 @@
 
 
 #include "shader_m.h"
+#include "Skybox.h"
 #include "camera.h"
 #include "model.h"
 #include "irrKlang/irrKlang.h"
 
+<<<<<<< Updated upstream
+=======
+#include "Car.h" 
+#include "Carconfig.h"
+
+>>>>>>> Stashed changes
 #include <iostream>
 
 using namespace irrklang;
@@ -55,9 +62,14 @@ ISoundEngine* soundEngine;
 ISound* accelerationSound = nullptr;
 bool soundPlaying = false;
 
+<<<<<<< Updated upstream
 struct Triangle {
     glm::vec3 v0, v1, v2;
 };
+=======
+CarConfig chevConfig;
+Car car(chevConfig);
+>>>>>>> Stashed changes
 
 std::vector<std::vector<std::vector<Triangle>>> gridCells(gridWidth, std::vector<std::vector<Triangle>>(gridHeight));
 
@@ -231,6 +243,7 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("Shaders/model/model_loading.vs", "Shaders/model/model_loading.fs");
+<<<<<<< Updated upstream
 
 
     // load models
@@ -238,6 +251,35 @@ int main()
     Model trackModel("objects/racetrack/track3.obj");
     Model carModel("objects/jeep/car.obj");
     Model wheelModel("objects/jeep/wheel.obj");
+=======
+    Shader skyboxShader("Shaders/skybox/skybox.vs", "Shaders/skybox/skybox.fs");
+        std::vector<std::string> faces = {
+        "Textures/skybox/right.jpg",
+        "Textures/skybox/left.jpg",
+        "Textures/skybox/top.jpg",
+        "Textures/skybox/bottom.jpg",
+        "Textures/skybox/front.jpg",
+        "Textures/skybox/back.jpg"
+    };
+    Skybox skybox(faces, skyboxShader.getID());
+    Model trackModel("Objects/racetrack/track3.obj");
+
+    //Model carModel("Objects/jeep/car.obj");
+   // Model wheelModel("Objects/jeep/wheel.obj");
+    Model carModel("Objects/chev-nascar/body.obj");
+    Model wheelModel("Objects/chev-nascar/wheel1.obj");
+
+    chevConfig.position = glm::vec3(0.0f, 1.0f, 0.0f);
+    //chevConfig.maxSpeed = 120.0f;
+   // chevConfig.acceleration = 10.0f;
+   // chevConfig.brakingForce = 20.0f;
+    chevConfig.frontLeftWheelOffset = glm::vec3(-1.00f, -0.6f, 0.85f);
+    chevConfig.frontRightWheelOffset = glm::vec3(1.00f, -0.6f, 0.85f);
+    chevConfig.backLeftWheelOffset = glm::vec3(-1.00f, -0.6f, -0.85f);
+    chevConfig.backRightWheelOffset = glm::vec3(1.00f, -0.6f, -0.85f);
+
+    car.applyConfig(chevConfig);
+>>>>>>> Stashed changes
 
     assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight);
 
@@ -299,6 +341,8 @@ int main()
         drawWheel(backRightWheel, false);
         drawWheel(frontLeftWheel, true);
         drawWheel(frontRightWheel, true);
+
+        skybox.draw(camera.GetViewMatrix(), projection);
 
         handleCarSound();
 
