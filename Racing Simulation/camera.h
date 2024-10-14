@@ -4,9 +4,8 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/constants.hpp> 
+#include <glm/gtc/constants.hpp>
 
-// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
     BACKWARD,
@@ -14,60 +13,46 @@ enum Camera_Movement {
     RIGHT
 };
 
-// Default camera values
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
-
-// An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
-class Camera
-{
+class Camera {
 public:
-    // camera Attributes
     glm::vec3 Position;
     glm::vec3 Front;
     glm::vec3 Up;
     glm::vec3 Right;
     glm::vec3 WorldUp;
-    // euler Angles
+    glm::vec3 CarPosition;  // Position of the car to follow
     float Yaw;
     float Pitch;
-    // camera options
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    bool isDragging;
+    float cameraLerpSpeed = 5.0f;
+    float OrbitRadius;
+    float OrbitMinRadius = 5.0f;
+    float OrbitMaxRadius = 20.0f;
 
-    // constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
-    {
+    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH, float orbitRadius = 10.0f)
+        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), OrbitRadius(orbitRadius), isDragging(false) {
         Position = position;
         WorldUp = up;
         Yaw = yaw;
         Pitch = pitch;
         updateCameraVectors();
     }
-    // constructor with scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
-    {
-        Position = glm::vec3(posX, posY, posZ);
-        WorldUp = glm::vec3(upX, upY, upZ);
-        Yaw = yaw;
-        Pitch = pitch;
-        updateCameraVectors();
-    }
 
-    // returns the view matrix calculated using Euler Angles and the LookAt Matrix
-    glm::mat4 GetViewMatrix()
-    {
+    glm::mat4 GetViewMatrix() {
         return glm::lookAt(Position, Position + Front, Up);
     }
 
-    // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime)
-    {
+    void ProcessKeyboard(Camera_Movement direction, float deltaTime) {
+        if (isDragging) return;  // Ignore keyboard input while dragging
         float velocity = MovementSpeed * deltaTime;
         if (direction == FORWARD)
             Position += Front * velocity;
@@ -79,80 +64,83 @@ public:
             Position += Right * velocity;
     }
 
-    // This function makes the camera follow the car
-    void FollowCar(glm::vec3 carPosition, glm::vec3 carDirection, float carSpeed, float maxSpeed, float minOffset = 8.0f, float maxOffset = 15.0f)
-    {
-        
-        float dynamicOffsetZ = glm::mix(minOffset, maxOffset, glm::clamp(carSpeed / maxSpeed, 0.0f, 1.0f));
+    void FollowCar(glm::vec3 carPosition, glm::vec3 carDirection, float carSpeed, float maxSpeed, float minOffset = 8.0f, float maxOffset = 15.0f) {
+        if (isDragging) return;  // Do not adjust position while dragging
 
+        CarPosition = carPosition;  // Update car position for later use
+
+        float dynamicOffsetZ = glm::mix(minOffset, maxOffset, glm::clamp(carSpeed / maxSpeed, 0.0f, 1.0f));
         float cameraHeightOffset = 3.0f;
 
         Position = carPosition - carDirection * dynamicOffsetZ + glm::vec3(0.0f, cameraHeightOffset, 0.0f);
 
-        glm::vec3 targetPosition = carPosition + glm::vec3(0.0f, 1.0f, 0.0f);  // Look 1 unit above the car
-
-        Front = glm::normalize(targetPosition - Position);
-
-        Right = glm::normalize(glm::cross(Front, WorldUp));
-        Up = glm::normalize(glm::cross(Right, Front));
-
-    }
-
-
-    void SetLookAt(glm::vec3 target)
-    {
-        // Calculate the new Front vector as the direction from the camera's current position to the target point
-        Front = glm::normalize(target - Position);
-
-        // Recalculate Right and Up vectors to maintain proper orientation
+        Front = glm::normalize(carPosition + glm::vec3(0.0f, 1.0f, 0.0f) - Position);
         Right = glm::normalize(glm::cross(Front, WorldUp));
         Up = glm::normalize(glm::cross(Right, Front));
     }
 
-    // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
-    {
+    void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true) {
+        if (!isDragging) return;  // Only rotate camera if dragging is active
+
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
 
         Yaw += xoffset;
         Pitch += yoffset;
 
-        // make sure that when pitch is out of bounds, screen doesn't get flipped
-        if (constrainPitch)
-        {
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
+        if (constrainPitch) {
+            Pitch = glm::clamp(Pitch, -89.0f, 89.0f);
         }
 
-        // update Front, Right and Up Vectors using the updated Euler angles
-        updateCameraVectors();
+        // Update the camera's position based on the latest yaw and pitch
+        updateCameraPosition();
     }
 
-    // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-    void ProcessMouseScroll(float yoffset)
-    {
-        Zoom -= (float)yoffset;
-        if (Zoom < 1.0f)
-            Zoom = 1.0f;
-        if (Zoom > 45.0f)
-            Zoom = 45.0f;
+    void updateCameraPosition() {
+        // Spherical to Cartesian coordinates conversion
+        glm::vec3 offset;
+        offset.x = OrbitRadius * cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+        offset.y = OrbitRadius * sin(glm::radians(Pitch));
+        offset.z = OrbitRadius * sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+        Position = CarPosition + offset;
+
+        // Re-calculate the Front vector
+        Front = glm::normalize(CarPosition - Position);
+        Right = glm::normalize(glm::cross(Front, WorldUp));
+        Up = glm::normalize(glm::cross(Right, Front));
+    }
+
+    void StartDragging() {
+        isDragging = true;
+    }
+
+    void StopDragging() {
+        isDragging = false;
+        ResetToFollowCar();
+    }
+
+    void ResetToFollowCar() {
+        // Reset the camera to follow the car smoothly
+        FollowCar(CarPosition, glm::normalize(Position - CarPosition), 0, 1);  // Assuming carSpeed and maxSpeed are not critical here
+    }
+
+    void ProcessMouseScroll(float yoffset) {
+        OrbitRadius -= (float)yoffset;
+        OrbitRadius = glm::clamp(OrbitRadius, OrbitMinRadius, OrbitMaxRadius);
+
+        updateCameraPosition();  // Update camera position based on new radius
     }
 
 private:
-    // calculates the front vector from the Camera's (updated) Euler Angles
-    void updateCameraVectors()
-    {
-        // calculate the new Front vector
+    void updateCameraVectors() {
+        // Calculate the front vector
         glm::vec3 front;
         front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         front.y = sin(glm::radians(Pitch));
         front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         Front = glm::normalize(front);
-        // also re-calculate the Right and Up vector
-        Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+        // Recalculate the Right and Up vector
+        Right = glm::normalize(glm::cross(Front, WorldUp));
         Up = glm::normalize(glm::cross(Right, Front));
     }
 };
