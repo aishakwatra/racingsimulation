@@ -1,16 +1,18 @@
 #include "Car.h"
-#include <iostream>
 
 Car::Car(const CarConfig& config)
-    : position(config.position), direction(config.direction), rotation(config.rotation),
+    : position(config.position),bodyOffset(config.bodyOffset),bodyScale(config.bodyScale), direction(config.direction), rotation(config.rotation),
     speed(config.speed), maxSpeed(config.maxSpeed), acceleration(config.acceleration),
-    brakingForce(config.brakingForce), frontLeftWheel(config.frontLeftWheelOffset),
-    frontRightWheel(config.frontRightWheelOffset), backLeftWheel(config.backLeftWheelOffset),
-    backRightWheel(config.backRightWheelOffset),
+    brakingForce(config.brakingForce), wheelScale(config.wheelScale), frontLeftWheel(config.frontLeftWheelOffset ,true),
+    frontRightWheel(config.frontRightWheelOffset ), backLeftWheel(config.backLeftWheelOffset ,true),
+    backRightWheel(config.backRightWheelOffset ),
     modelMatrix(glm::mat4(1.0f)) {}
 
 void Car::applyConfig(const CarConfig& config) {
     position = config.position;
+    bodyScale = config.bodyScale;
+    bodyOffset = config.bodyOffset;
+    wheelScale = config.wheelScale;
     direction = config.direction;
     rotation = config.rotation;
     speed = config.speed;
@@ -69,17 +71,20 @@ void Car::updateModelMatrix() {
     modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));  // Yaw (left and right)
     modelMatrix = glm::rotate(modelMatrix, pitchAngle, glm::vec3(1.0f, 0.0f, 0.0f));  // Pitch (up/down)
     modelMatrix = glm::rotate(modelMatrix, rollAngle, glm::vec3(0.0f, 0.0f, 1.0f));  // Roll (side-to-side)
+   
 
     // Update wheels' model matrices
-    frontLeftWheel.updateModelMatrix(modelMatrix, true);
-    frontRightWheel.updateModelMatrix(modelMatrix, true);
-    backLeftWheel.updateModelMatrix(modelMatrix, false);
-    backRightWheel.updateModelMatrix(modelMatrix, false);
+    frontLeftWheel.updateModelMatrix(modelMatrix,wheelScale, true);
+    frontRightWheel.updateModelMatrix(modelMatrix, wheelScale,true);
+    backLeftWheel.updateModelMatrix(modelMatrix, wheelScale, false);
+    backRightWheel.updateModelMatrix(modelMatrix, wheelScale, false);
 
 }
 
 glm::mat4 Car::getModelMatrix() const {
-    return modelMatrix;
+    glm::mat4 bodyModelMatrix = glm::translate(modelMatrix, bodyOffset);
+    bodyModelMatrix = glm::scale(bodyModelMatrix, bodyScale);
+    return bodyModelMatrix;
 }
 
 // Accessors for wheel matrices

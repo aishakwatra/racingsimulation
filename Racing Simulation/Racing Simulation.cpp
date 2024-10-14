@@ -13,13 +13,9 @@
 #include "model.h"
 #include "irrKlang/irrKlang.h"
 
-<<<<<<< Updated upstream
-=======
 #include "Car.h" 
 #include "Carconfig.h"
 
->>>>>>> Stashed changes
-#include <iostream>
 
 using namespace irrklang;
 
@@ -30,9 +26,7 @@ void processInput(GLFWwindow* window);
 
 void handleCarSound();
 
-void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight);
-void checkTrackIntersectionWithGrid(glm::vec3 rayOrigin, glm::vec3 rayDirection, float gridSize, int gridWidth, int gridHeight, float& closestT, glm::vec3& intersectionPoint);
-bool intersectRayWithTriangle(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, float& t);
+void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<std::vector<Triangle>>>& gridCells);
 
 // settings
 const unsigned int SCR_WIDTH = 1920;
@@ -62,130 +56,13 @@ ISoundEngine* soundEngine;
 ISound* accelerationSound = nullptr;
 bool soundPlaying = false;
 
-<<<<<<< Updated upstream
-struct Triangle {
-    glm::vec3 v0, v1, v2;
-};
-=======
+
 CarConfig chevConfig;
 Car car(chevConfig);
->>>>>>> Stashed changes
 
-std::vector<std::vector<std::vector<Triangle>>> gridCells(gridWidth, std::vector<std::vector<Triangle>>(gridHeight));
 
-struct CarBody {
-    glm::vec3 position;
-    glm::vec3 direction;
-    float rotation;
-    float speed;
-    float maxSpeed;
-    float acceleration;
-    float brakingForce;
-    glm::mat4 modelMatrix;
+std::vector<std::vector<std::vector<Triangle>>> gridCells;
 
-    CarBody() :
-        position(glm::vec3(0.0f, 1.5f, 0.0f)),
-        direction(glm::vec3(0.0f, 0.0f, 1.0f)),
-        rotation(0.0f),
-        speed(0.0f),
-        maxSpeed(80.0f),
-        acceleration(11.0f),
-        brakingForce(20.0f),
-        modelMatrix(glm::mat4(1.0f)) {}
-
-    void updateModelMatrix();
-
-};
-
-struct Wheel {
-    glm::vec3 offset;
-    glm::vec3 scale;
-    glm::vec3 direction;
-    float rotation;
-    float steeringAngle;
-    float maxSteeringAngle;
-    glm::mat4 modelMatrix;
-
-    Wheel(glm::vec3 offsetPos) :
-        offset(offsetPos),
-        scale(glm::vec3(1.0f, 1.0f, 1.0f)),
-        direction(glm::vec3(0.0f, 0.0f, 1.0f)),
-        rotation(0.0f),
-        steeringAngle(0.0f),
-        maxSteeringAngle(45.0f),
-        modelMatrix(glm::mat4(1.0f)) {}
-
-    void updateModelMatrix(const glm::mat4& carModelMatrix, bool isSteeringWheel) {
-        modelMatrix = glm::mat4(1.0f); 
-        modelMatrix = carModelMatrix; 
-        modelMatrix = glm::translate(modelMatrix, offset); 
-        if (isSteeringWheel) {
-            modelMatrix = glm::rotate(modelMatrix, glm::radians(steeringAngle), glm::vec3(0.0f, 1.0f, 0.0f)); 
-        }
-        modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(1.0f, 0.0f, 0.0f));
-        modelMatrix = glm::scale(modelMatrix, scale);
-    }
-
-};
-
-void CarBody::updateModelMatrix() {
-    
-    //instantiate rays
-    glm::vec3 frontLeftOffset = glm::vec3(-0.65f, 1.0f, 0.85f); 
-    glm::vec3 frontRightOffset = glm::vec3(0.65f, 1.0f, 0.85f); 
-    glm::vec3 backLeftOffset = glm::vec3(-0.65f, 1.0f, -0.85f);  
-    glm::vec3 backRightOffset = glm::vec3(0.65f, 1.0f, -0.85f);  
-
-    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-
-    glm::vec3 frontLeftRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(frontLeftOffset, 1.0f));
-    glm::vec3 frontRightRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(frontRightOffset, 1.0f));
-    glm::vec3 backLeftRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backLeftOffset, 1.0f));
-    glm::vec3 backRightRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backRightOffset, 1.0f));
-
-    glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f); 
-
-    //find intersections
-    glm::vec3 frontLeftIntersection, frontRightIntersection, backLeftIntersection, backRightIntersection;
-    float frontLeftT, frontRightT, backLeftT, backRightT;
-
-    checkTrackIntersectionWithGrid(frontLeftRayOrigin, rayDirection, gridSize, gridWidth, gridHeight, frontLeftT, frontLeftIntersection);
-    checkTrackIntersectionWithGrid(frontRightRayOrigin, rayDirection, gridSize, gridWidth, gridHeight, frontRightT, frontRightIntersection);
-    checkTrackIntersectionWithGrid(backLeftRayOrigin, rayDirection, gridSize, gridWidth, gridHeight, backLeftT, backLeftIntersection);
-    checkTrackIntersectionWithGrid(backRightRayOrigin, rayDirection, gridSize, gridWidth, gridHeight, backRightT, backRightIntersection);
-
-    //update car orientation
-  
-    glm::vec3 midFront = (frontLeftIntersection + frontRightIntersection) / 2.0f;
-    glm::vec3 midBack = (backLeftIntersection + backRightIntersection) / 2.0f;
-
-    float rollHeightDifference = ((frontRightIntersection.y + backRightIntersection.y) / 2.0f) - ((frontLeftIntersection.y + backLeftIntersection.y) / 2.0f);
-    float pitchHeightDifference = ((frontLeftIntersection.y + frontRightIntersection.y) / 2.0f) - ((backLeftIntersection.y + backRightIntersection.y) / 2.0f);
-
-    //pitch angle based on the height difference from front to back
-    float pitchAngle = glm::atan(-pitchHeightDifference / glm::length(midFront - midBack)); 
-
-    //roll angle based on the height difference from left to right
-    float rollAngle = glm::atan(rollHeightDifference / glm::length(frontRightIntersection - frontLeftIntersection));
-
-    // Update car's y-position based on the average height of all four intersections
-    position.y = (frontLeftIntersection.y + frontRightIntersection.y + backLeftIntersection.y + backRightIntersection.y) / 4.0f + 1.5f;
-
-    // Update the model matrix
-    modelMatrix = glm::mat4(1.0f);
-    modelMatrix = glm::translate(modelMatrix, position);
-    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));  // Yaw (left and right)
-    modelMatrix = glm::rotate(modelMatrix, pitchAngle, glm::vec3(1.0f, 0.0f, 0.0f));  // Pitch (up/down tilting)
-    modelMatrix = glm::rotate(modelMatrix, rollAngle, glm::vec3(0.0f, 0.0f, 1.0f));  // Roll (side-to-side tilting)
-
-}
-
-// Instantiate car body and wheels
-CarBody carBody;
-Wheel backLeftWheel(glm::vec3(-0.65f, -0.6f, -0.85f));
-Wheel backRightWheel(glm::vec3(0.65f, -0.6f, -0.85f));
-Wheel frontLeftWheel(glm::vec3(-0.65f, -0.6f, 0.85f));
-Wheel frontRightWheel(glm::vec3(0.65f, -0.6f, 0.85f));
 
 int main()
 {
@@ -243,15 +120,9 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("Shaders/model/model_loading.vs", "Shaders/model/model_loading.fs");
-<<<<<<< Updated upstream
-
 
     // load models
     // -----------
-    Model trackModel("objects/racetrack/track3.obj");
-    Model carModel("objects/jeep/car.obj");
-    Model wheelModel("objects/jeep/wheel.obj");
-=======
     Shader skyboxShader("Shaders/skybox/skybox.vs", "Shaders/skybox/skybox.fs");
         std::vector<std::string> faces = {
         "Textures/skybox/right.jpg",
@@ -264,25 +135,26 @@ int main()
     Skybox skybox(faces, skyboxShader.getID());
     Model trackModel("Objects/racetrack/track3.obj");
 
-    //Model carModel("Objects/jeep/car.obj");
-   // Model wheelModel("Objects/jeep/wheel.obj");
-    Model carModel("Objects/chev-nascar/body.obj");
-    Model wheelModel("Objects/chev-nascar/wheel1.obj");
+   //Model carModel("Objects/jeep/car.obj");
+   //Model wheelModel("Objects/jeep/wheel.obj");
+   Model carModel("Objects/chev-nascar/body.obj");
+   Model wheelModel("Objects/chev-nascar/wheel1.obj");
 
-    chevConfig.position = glm::vec3(0.0f, 1.0f, 0.0f);
-    //chevConfig.maxSpeed = 120.0f;
-   // chevConfig.acceleration = 10.0f;
-   // chevConfig.brakingForce = 20.0f;
-    chevConfig.frontLeftWheelOffset = glm::vec3(-1.00f, -0.6f, 0.85f);
-    chevConfig.frontRightWheelOffset = glm::vec3(1.00f, -0.6f, 0.85f);
-    chevConfig.backLeftWheelOffset = glm::vec3(-1.00f, -0.6f, -0.85f);
-    chevConfig.backRightWheelOffset = glm::vec3(1.00f, -0.6f, -0.85f);
+    chevConfig.position = glm::vec3(0.0f, 0.0f, 0.0f);
+    chevConfig.bodyOffset = glm::vec3(0.0f, -1.0f, 0.0f);
+    chevConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
+    chevConfig.wheelScale = glm::vec3(0.5f, 0.5f, 0.5f);
+    chevConfig.maxSpeed = 120.0f;
+    chevConfig.acceleration = 10.0f;
+    chevConfig.brakingForce = 20.0f;
+    chevConfig.frontRightWheelOffset = glm::vec3(-0.45f, -0.6f, 0.80f);
+    chevConfig.frontLeftWheelOffset = glm::vec3(0.45f, -0.6f, 0.80f);
+    chevConfig.backRightWheelOffset = glm::vec3(-0.45f, -0.6f, -1.00f);
+    chevConfig.backLeftWheelOffset = glm::vec3(0.45f, -0.6f, -1.00f);
 
     car.applyConfig(chevConfig);
->>>>>>> Stashed changes
-
-    assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight);
-
+    assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCells);
+    car.setCollisionGrid(gridCells, gridSize, gridWidth, gridHeight);
 
     // render loop
     // -----------
@@ -300,10 +172,7 @@ int main()
         // -----
         processInput(window);
 
-        camera.FollowCar(carBody.position, carBody.direction, carBody.speed, carBody.maxSpeed);
-
-        glm::vec3 rayOrigin = carBody.position + glm::vec3(0.0f, 1.0f, 0.0f);  // Slightly above the car
-        glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+        camera.FollowCar(car.getPosition(), car.getDirection(), car.getSpeed(), car.getMaxSpeed());
 
         // render
         // ------
@@ -312,7 +181,6 @@ int main()
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
-
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 200.0f);
@@ -326,23 +194,23 @@ int main()
         trackModel.Draw(ourShader);
 
         //car body
-        carBody.updateModelMatrix();
-        ourShader.setMat4("model", carBody.modelMatrix);
+        car.updateModelMatrix();  // Update the car and wheel transformations
+        ourShader.setMat4("model", car.getModelMatrix());
         carModel.Draw(ourShader);
 
-        //wheels
-        auto drawWheel = [&](Wheel& wheel, bool isSteeringWheel) {
-            wheel.updateModelMatrix(carBody.modelMatrix, isSteeringWheel);
-            ourShader.setMat4("model", wheel.modelMatrix);  
-            wheelModel.Draw(ourShader);  
-        };
+        ourShader.setMat4("model", car.getFrontLeftWheelModelMatrix());
+        wheelModel.Draw(ourShader);
 
-        drawWheel(backLeftWheel, false);
-        drawWheel(backRightWheel, false);
-        drawWheel(frontLeftWheel, true);
-        drawWheel(frontRightWheel, true);
+        ourShader.setMat4("model", car.getFrontRightWheelModelMatrix());
+        wheelModel.Draw(ourShader);
 
-        skybox.draw(camera.GetViewMatrix(), projection);
+        ourShader.setMat4("model", car.getBackLeftWheelModelMatrix());
+        wheelModel.Draw(ourShader);
+
+        ourShader.setMat4("model", car.getBackRightWheelModelMatrix());
+        wheelModel.Draw(ourShader);
+
+        skybox.draw(view, projection);
 
         handleCarSound();
 
@@ -366,80 +234,36 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    float rotationSpeed = 120.0f;
-    float movementSpeed = carBody.speed * deltaTime;
 
-    bool acceleratePressed = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
-    bool brakePressed = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    {
-        carBody.speed += carBody.acceleration * deltaTime;
-        if (carBody.speed > carBody.maxSpeed) carBody.speed = carBody.maxSpeed;
-
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        car.accelerate(deltaTime);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    {
-        carBody.speed -= carBody.brakingForce * deltaTime;
-        if (carBody.speed < -carBody.maxSpeed / 2.0f) carBody.speed = -carBody.maxSpeed / 2.0f;
-    }
-    
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE)
-    {
-        if (carBody.speed > 0)
-        {
-            carBody.speed -= carBody.acceleration * deltaTime;
-            if (carBody.speed < 0) carBody.speed = 0;
-        }
-        else if (carBody.speed < 0)
-        {
-            carBody.speed += carBody.acceleration * deltaTime;
-            if (carBody.speed > 0) carBody.speed = 0;
-        }
-
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        car.brake(deltaTime);
     }
 
-    //Steering
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    {
-        frontLeftWheel.steeringAngle += rotationSpeed * deltaTime;
-        frontRightWheel.steeringAngle += rotationSpeed * deltaTime;
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {
-        frontLeftWheel.steeringAngle -= rotationSpeed * deltaTime;
-        frontRightWheel.steeringAngle -= rotationSpeed * deltaTime;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE) {
+        car.slowDown(deltaTime);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE)
-    {
-        frontLeftWheel.steeringAngle = glm::mix(frontLeftWheel.steeringAngle, 0.0f, 2.0f * deltaTime);
-        frontRightWheel.steeringAngle = glm::mix(frontRightWheel.steeringAngle, 0.0f, 2.0f * deltaTime);
+    // Handle steering
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        car.steerLeft(deltaTime);
     }
 
-    frontLeftWheel.steeringAngle = glm::clamp(frontLeftWheel.steeringAngle, -frontLeftWheel.maxSteeringAngle, frontLeftWheel.maxSteeringAngle);
-    frontRightWheel.steeringAngle = glm::clamp(frontRightWheel.steeringAngle, -frontRightWheel.maxSteeringAngle, frontRightWheel.maxSteeringAngle);
-
-    frontLeftWheel.direction = glm::vec3(sin(glm::radians(frontLeftWheel.steeringAngle)), 0.0f, cos(glm::radians(frontLeftWheel.steeringAngle)));
-    frontRightWheel.direction = glm::vec3(sin(glm::radians(frontRightWheel.steeringAngle)), 0.0f, cos(glm::radians(frontRightWheel.steeringAngle)));
-
-    glm::vec3 avgWheelDirection = glm::normalize((frontLeftWheel.direction + frontRightWheel.direction) / 2.0f);
-
-    carBody.direction = glm::vec3(sin(glm::radians(carBody.rotation)), 0.0f, cos(glm::radians(carBody.rotation)));
-
-    if (carBody.speed != 0.0f)
-    {
-        carBody.rotation += glm::clamp(frontLeftWheel.steeringAngle, -frontLeftWheel.maxSteeringAngle, frontLeftWheel.maxSteeringAngle) * deltaTime;
-        carBody.position += carBody.direction * carBody.speed * deltaTime;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        car.steerRight(deltaTime);
     }
-    
-    backLeftWheel.rotation += carBody.speed * deltaTime * 360.0f;
-    backRightWheel.rotation += carBody.speed * deltaTime * 360.0f;
-    frontLeftWheel.rotation += carBody.speed * deltaTime * 360.0f;
-    frontRightWheel.rotation += carBody.speed * deltaTime * 360.0f;
-   
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE) {
+        car.centerSteering(deltaTime);
+    }
+
+    car.updatePositionAndDirection(deltaTime);
+
+    car.updateWheelRotations(deltaTime);
+
 }
 
 
@@ -490,7 +314,10 @@ glm::vec3 calculateTriangleNormal(const glm::vec3& v0, const glm::vec3& v1, cons
 } 
 
 
-void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight) {
+void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<std::vector<Triangle>>>& gridCells) {
+
+    // Resize gridCells
+    gridCells.resize(gridWidth, std::vector<std::vector<Triangle>>(gridHeight));
 
     for (const Mesh& mesh : trackModel.meshes) {
         for (unsigned int i = 0; i < mesh.indices.size(); i += 3) {
@@ -529,68 +356,6 @@ void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidt
     }
 }
 
-bool intersectRayWithTriangle(glm::vec3 rayOrigin, glm::vec3 rayDirection,glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, float& t) {
-
-    const float EPSILON = 0.0000001f;
-    glm::vec3 edge1 = v1 - v0;
-    glm::vec3 edge2 = v2 - v0;
-
-    glm::vec3 h = glm::cross(rayDirection, edge2);
-    float a = glm::dot(edge1, h);
-
-    if (a > -EPSILON && a < EPSILON)
-        return false;  // Ray is parallel to triangle
-
-    float f = 1.0f / a;
-    glm::vec3 s = rayOrigin - v0;
-    float u = f * glm::dot(s, h);
-    if (u < 0.0f || u > 1.0f)
-        return false;
-
-    glm::vec3 q = glm::cross(s, edge1);
-    float v = f * glm::dot(rayDirection, q);
-    if (v < 0.0f || u + v > 1.0f)
-        return false;
-
-    t = f * glm::dot(edge2, q);
-    return t > EPSILON;  // valid intersection
-
-
-}
-
-void checkTrackIntersectionWithGrid(glm::vec3 rayOrigin, glm::vec3 rayDirection, float gridSize, int gridWidth, int gridHeight, float& closestT, glm::vec3& intersectionPoint) {
-    
-    int carGridX = static_cast<int>(floor(rayOrigin.x / gridSize));
-    int carGridZ = static_cast<int>(floor(rayOrigin.z / gridSize));
-
-    carGridX = std::max(0, std::min(gridWidth - 1, carGridX));
-    carGridZ = std::max(0, std::min(gridHeight - 1, carGridZ));
-
-    int gridMinX = std::max(0, carGridX - 1);
-    int gridMaxX = std::min(gridWidth - 1, carGridX + 1);
-    int gridMinZ = std::max(0, carGridZ - 1);
-    int gridMaxZ = std::min(gridHeight - 1, carGridZ + 1);
-
-    closestT = std::numeric_limits<float>::max();
-
-    for (int x = gridMinX; x <= gridMaxX; x++) {
-        for (int z = gridMinZ; z <= gridMaxZ; z++) {
-
-            for (const Triangle& tri : gridCells[x][z]) {
-                float t;
-
-                if (intersectRayWithTriangle(rayOrigin, rayDirection, tri.v0, tri.v1, tri.v2, t)) {
-                    if (t < closestT) {
-                        closestT = t;
-                        intersectionPoint = rayOrigin + rayDirection * t;
-                    }
-
-                }
-            }
-        }
-    }
-}
-
 void handleCarSound()
 {
 
@@ -607,7 +372,7 @@ void handleCarSound()
     }
 
 
-    if (carBody.speed > 0.0f)
+    if (car.getSpeed() > 0.0f)
     {
 
         if (accelerationSound->getIsPaused())
@@ -618,22 +383,22 @@ void handleCarSound()
             accelerationSound->setIsPaused(false);
         }
 
-        float pitch = 1.0f + (carBody.speed / carBody.maxSpeed);
+        float pitch = 1.0f + (car.getSpeed() / car.getMaxSpeed());
         accelerationSound->setPlaybackSpeed(pitch);
 
-        float volume = glm::clamp(carBody.speed / carBody.maxSpeed, 0.2f, 1.0f);
+        float volume = glm::clamp(car.getSpeed() / car.getMaxSpeed(), 0.2f, 1.0f);
         accelerationSound->setVolume(volume);
 
         fadeOutVolume = volume;
 
     }
-    else if (carBody.speed == 0.0f && !accelerationSound->getIsPaused())
+    else if (car.getSpeed() == 0.0f && !accelerationSound->getIsPaused())
     {
 
         if (fadeOutVolume > 0.0f)
         {
-            fadeOutVolume -= deltaTime * 0.5f; 
-            fadeOutVolume = glm::clamp(fadeOutVolume, 0.0f, 1.0f); 
+            fadeOutVolume -= deltaTime * 0.5f;
+            fadeOutVolume = glm::clamp(fadeOutVolume, 0.0f, 1.0f);
             accelerationSound->setVolume(fadeOutVolume);
         }
         else
@@ -643,4 +408,5 @@ void handleCarSound()
 
         }
     }
+
 }
