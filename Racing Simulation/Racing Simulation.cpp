@@ -8,25 +8,28 @@
 
 
 #include "shader_m.h"
+#include "Skybox.h"
 #include "camera.h"
 #include "model.h"
 #include "irrKlang/irrKlang.h"
 
 #include "Car.h" 
+#include "Carconfig.h"
 
-#include <iostream>
 
 using namespace irrklang;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
-void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<std::vector<Triangle>>>& gridCells);
+void processInput(GLFWwindow* window);
 
 void handleCarSound();
 
+void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<std::vector<Triangle>>>& gridCells);
 
 // settings
 const unsigned int SCR_WIDTH = 1920;
@@ -48,15 +51,18 @@ glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
 //track divided into 15x15 grid with each block being 20x20 in size
 int gridWidth = 15;
-int gridHeight = 15;
-float gridSize = 20.0f;
+int gridHeight = 15; 
+float gridSize = 20.0f; 
 
 ISoundEngine* soundEngine;
 
 ISound* accelerationSound = nullptr;
 bool soundPlaying = false;
 
-Car car;
+
+CarConfig chevConfig;
+Car car(chevConfig);
+
 
 std::vector<std::vector<std::vector<Triangle>>> gridCells;
 
@@ -85,7 +91,8 @@ int main()
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
     // tell GLFW to capture our mouse
@@ -114,27 +121,42 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
 
-    // Load shaders and models
+    // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("Shaders/model/model_loading.vs", "Shaders/model/model_loading.fs");
-    Model trackModel("objects/racetrack/track3.obj");
-    Model carModel("objects/jeep/car.obj");
-    Model wheelModel("objects/jeep/wheel.obj");
 
-    // Extract vertices and indices from trackModel
-    std::vector<glm::vec3> trackVertices;
-    std::vector<unsigned int> trackIndices;
+    // load models
+    // -----------
+    Shader skyboxShader("Shaders/skybox/skybox.vs", "Shaders/skybox/skybox.fs");
+        std::vector<std::string> faces = {
+        "Textures/skybox/right.jpg",
+        "Textures/skybox/left.jpg",
+        "Textures/skybox/top.jpg",
+        "Textures/skybox/bottom.jpg",
+        "Textures/skybox/front.jpg",
+        "Textures/skybox/back.jpg"
+    };
+    Skybox skybox(faces, skyboxShader.getID());
+    Model trackModel("Objects/racetrack/track3.obj");
 
-    for (const Mesh& mesh : trackModel.meshes) {
-        for (const Vertex& vertex : mesh.vertices) {
-            trackVertices.push_back(vertex.Position);
-        }
-        for (unsigned int index : mesh.indices) {
-            trackIndices.push_back(index);
-        }
-    }
+   //Model carModel("Objects/jeep/car.obj");
+   //Model wheelModel("Objects/jeep/wheel.obj");
+   Model carModel("Objects/chev-nascar/body.obj");
+   Model wheelModel("Objects/chev-nascar/wheel1.obj");
 
+    chevConfig.position = glm::vec3(0.0f, 0.0f, 0.0f);
+    chevConfig.bodyOffset = glm::vec3(0.0f, -1.0f, 0.0f);
+    chevConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
+    chevConfig.wheelScale = glm::vec3(0.5f, 0.5f, 0.5f);
+    chevConfig.maxSpeed = 120.0f;
+    chevConfig.acceleration = 10.0f;
+    chevConfig.brakingForce = 20.0f;
+    chevConfig.frontRightWheelOffset = glm::vec3(-0.45f, -0.6f, 0.80f);
+    chevConfig.frontLeftWheelOffset = glm::vec3(0.45f, -0.6f, 0.80f);
+    chevConfig.backRightWheelOffset = glm::vec3(-0.45f, -0.6f, -1.00f);
+    chevConfig.backLeftWheelOffset = glm::vec3(0.45f, -0.6f, -1.00f);
 
+    car.applyConfig(chevConfig);
     assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCells);
     car.setCollisionGrid(gridCells, gridSize, gridWidth, gridHeight);
 
@@ -192,6 +214,8 @@ int main()
         ourShader.setMat4("model", car.getBackRightWheelModelMatrix());
         wheelModel.Draw(ourShader);
 
+        skybox.draw(view, projection);
+
         handleCarSound();
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -202,8 +226,8 @@ int main()
 
     soundEngine->drop();
 
-        // glfw: terminate, clearing all previously allocated GLFW resources.
-        // ------------------------------------------------------------------
+    // glfw: terminate, clearing all previously allocated GLFW resources.
+    // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
 }
@@ -247,17 +271,37 @@ void processInput(GLFWwindow* window)
 }
 
 
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-{
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    static float lastX = SCR_WIDTH / 2.0;
+    static float lastY = SCR_HEIGHT / 2.0;
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // Reverse since y-coordinates range from bottom to top
+    lastX = xpos;
+    lastY = ypos;
 
-    if (firstMouse)
-    {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        camera.ProcessMouseMovement(xoffset, yoffset);
     }
+}
+
+
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            // When the left mouse button is pressed, start dragging
+            camera.StartDragging();
+        }
+        else if (action == GLFW_RELEASE) {
+            // When the left mouse button is released, stop dragging
+            camera.StopDragging();
+        }
+    }
+}
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    static double lastX = xpos;
+    static double lastY = ypos;
 
     float xoffset = xpos - lastX;
     float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
@@ -265,17 +309,16 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);
-
+    // Only update camera if dragging is active
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        camera.ProcessMouseMovement(xoffset, yoffset);
+    }
 }
 
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+// Function to be called whenever the mouse scroll wheel is used
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    camera.ProcessMouseScroll(yoffset);
 }
-
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -291,7 +334,8 @@ glm::vec3 calculateTriangleNormal(const glm::vec3& v0, const glm::vec3& v1, cons
     glm::vec3 edge2 = v2 - v0;
     glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
     return normal;
-}
+} 
+
 
 void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<std::vector<Triangle>>>& gridCells) {
 
@@ -335,7 +379,6 @@ void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidt
     }
 }
 
-
 void handleCarSound()
 {
 
@@ -377,8 +420,8 @@ void handleCarSound()
 
         if (fadeOutVolume > 0.0f)
         {
-            fadeOutVolume -= deltaTime * 0.5f; 
-            fadeOutVolume = glm::clamp(fadeOutVolume, 0.0f, 1.0f); 
+            fadeOutVolume -= deltaTime * 0.5f;
+            fadeOutVolume = glm::clamp(fadeOutVolume, 0.0f, 1.0f);
             accelerationSound->setVolume(fadeOutVolume);
         }
         else

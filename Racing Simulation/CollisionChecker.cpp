@@ -93,4 +93,3 @@ bool CollisionChecker::intersectRayWithTriangle(glm::vec3 rayOrigin, glm::vec3 r
     return t > EPSILON;  // Valid intersection
 }
 
-

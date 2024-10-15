@@ -5,10 +5,11 @@
 #include "Wheel.h"
 #include "CollisionChecker.h"
 #include <vector>
-
+#include "Carconfig.h"
 class Car {
 public:
-    Car();
+    explicit Car(const CarConfig& config);
+    void applyConfig(const CarConfig& config);
 
     void updateModelMatrix();
     glm::mat4 getModelMatrix() const;
@@ -18,6 +19,7 @@ public:
     glm::mat4 getFrontRightWheelModelMatrix() const;
     glm::mat4 getBackLeftWheelModelMatrix() const;
     glm::mat4 getBackRightWheelModelMatrix() const;
+
 
     // Movement and steering methods
     void accelerate(float deltaTime);
@@ -42,7 +44,10 @@ public:
 
 private:
     glm::vec3 position;
+    glm::vec3 bodyOffset;
     glm::vec3 direction;
+    glm::vec3 bodyScale;
+    glm::vec3 wheelScale;
     float rotation;
     float speed;
     float maxSpeed;
