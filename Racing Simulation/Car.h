@@ -33,7 +33,7 @@ public:
     void updateWheelRotations(float deltaTime);
     void updatePositionAndDirection(float deltaTime);
 
-    void setCollisionGrid(const std::vector<std::vector<std::vector<Triangle>>>& gridCells, const std::vector<std::vector<std::vector<Triangle>>>& gridCellsCollision, float gridSize, int gridWidth, int gridHeight);
+    void setCollisionGrid(const std::vector<std::vector<Triangle>>& gridCells,const std::vector<std::vector<Triangle>>& gridCellsCollision, float gridSize, int gridWidth, int gridHeight);
 
     // Getters for position, direction, speed, and other properties
     glm::vec3 getPosition() const;

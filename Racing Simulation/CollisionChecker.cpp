@@ -26,7 +26,7 @@ T clamp(T value, T minValue, T maxValue) {
 
 CollisionChecker::CollisionChecker() : gridCells(nullptr) {}
 
-void CollisionChecker::setGrid(const std::vector<std::vector<std::vector<Triangle>>>& externalGridCells, const std::vector<std::vector<std::vector<Triangle>>>& externalGridCellsCollision, float gridSize, int gridWidth, int gridHeight) {
+void CollisionChecker::setGrid(const std::vector<std::vector<Triangle>>& externalGridCells, const std::vector<std::vector<Triangle>>& externalGridCellsCollision,float gridSize, int gridWidth, int gridHeight) {
     gridCells = &externalGridCells;  // Store pointer to the external grid
     gridCellsCollision = &externalGridCellsCollision;
     this->gridSize = gridSize;
@@ -42,29 +42,25 @@ bool CollisionChecker::checkTrackIntersectionWithGrid(glm::vec3 rayOrigin, glm::
     int carGridX = static_cast<int>(std::floor(rayOrigin.x / gridSize));
     int carGridZ = static_cast<int>(std::floor(rayOrigin.z / gridSize));
 
-    carGridX = customMin(gridWidth - 1, customMax(0, carGridX));
-    carGridZ = customMin(gridHeight - 1, customMax(0, carGridZ));
+    carGridX = clamp(carGridX, 0, gridWidth - 1);
+    carGridZ = clamp(carGridZ, 0, gridHeight - 1);
 
-    int gridMinX = customMax(0, carGridX - 1);
-    int gridMaxX = customMin(gridWidth - 1, carGridX + 1);
-    int gridMinZ = customMax(0, carGridZ - 1);
-    int gridMaxZ = customMin(gridHeight - 1, carGridZ + 1);
+    // Convert (x, z) coordinates into the 1D index for the grid cell
+    int cellIndex = carGridZ * gridWidth + carGridX;
 
     const float MAX_FLOAT = 3.402823466e+38F;  // Maximum float value
     float closestT = MAX_FLOAT;
     bool hasIntersection = false;
 
-    for (int x = gridMinX; x <= gridMaxX; x++) {
-        for (int z = gridMinZ; z <= gridMaxZ; z++) {
-            for (const Triangle& tri : (*gridCells)[x][z]) {
-                float t;
-                if (intersectRayWithTriangle(rayOrigin, rayDirection, tri.v0, tri.v1, tri.v2, t)) {
-                    if (t < closestT) {
-                        closestT = t;
-                        intersectionPoint = rayOrigin + rayDirection * t;
-                        hasIntersection = true;
-                    }
-                }
+
+    // Iterate over the triangles in the target grid cell
+    for (const Triangle& tri : (*gridCells)[cellIndex]) {
+        float t;
+        if (intersectRayWithTriangle(rayOrigin, rayDirection, tri.v0, tri.v1, tri.v2, t)) {
+            if (t < closestT) {
+                closestT = t;
+                intersectionPoint = rayOrigin + rayDirection * t;
+                hasIntersection = true;
             }
         }
     }
@@ -84,13 +80,20 @@ bool CollisionChecker::checkTrackIntersectionWithGrid(const AABB& aabb) {
     minGridZ = clamp(minGridZ, 0, gridHeight - 1);
     maxGridZ = clamp(maxGridZ, 0, gridHeight - 1);
 
+
     for (int x = minGridX; x <= maxGridX; ++x) {
         for (int z = minGridZ; z <= maxGridZ; ++z) {
-            for (const Triangle& tri : (*gridCellsCollision)[x][z]) {
+
+            int cellIndex = z * gridWidth + x; 
+
+            for (const Triangle& tri : (*gridCellsCollision)[cellIndex]) {
+
                 if (intersectAABBWithTriangle(aabb, tri)) {
-                    return true; 
+                    return true;  
                 }
+
             }
+
         }
     }
 
