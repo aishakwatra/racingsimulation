@@ -1,2 +1,10 @@
-﻿  Car.cpp
+﻿  Racing Simulation.cpp
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(266,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(267,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(268,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(269,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(295,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(296,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(309,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(335,38): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   Racing Simulation.vcxproj -> C:\Users\user\Documents\GitHub\racingsimulation\x64\Debug\Racing Simulation.exe

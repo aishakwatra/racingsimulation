@@ -29,7 +29,7 @@ void processInput(GLFWwindow* window);
 
 void handleCarSound(SoundManager& soundManager, const Car& car);
 
-void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<std::vector<Triangle>>>& gridCells);
+void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<Triangle>>& gridCells);
 
 // settings
 const unsigned int SCR_WIDTH = 1920;
@@ -52,15 +52,14 @@ glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 //track divided into 15x15 grid with each block being 20x20 in size
 int gridWidth = 15;
 int gridHeight = 15; 
-float gridSize = 20.0f; 
+float gridSize = 7.0f; 
 
 CarConfig chevConfig;
 Car car(chevConfig);
 
-std::vector<std::vector<std::vector<Triangle>>> gridCells;
+std::vector<std::vector<Triangle>> gridCells;
 
 SoundManager soundManager;
-
 
 int main()
 {
@@ -326,11 +325,30 @@ glm::vec3 calculateTriangleNormal(const glm::vec3& v0, const glm::vec3& v1, cons
     return normal;
 } 
 
+void printGridCells() {
+    int totalSum = 0;
 
-void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<std::vector<Triangle>>>& gridCells) {
+    for (int i = 0; i < gridCells.size(); ++i) {
+
+        int num = gridCells[i].size();  // Number of triangles in this cell
+        std::cout << "Number of triangles: " << num << std::endl;
+
+        totalSum += num;
+    }
+
+    std::cout << "TOTAL SUM: " << totalSum << std::endl;
+}
+
+
+int getGridIndex(int x, int z, int gridWidth) {
+    return z * gridWidth + x;
+}
+
+
+void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight,std::vector<std::vector<Triangle>> & gridCells) {
 
     // Resize gridCells
-    gridCells.resize(gridWidth, std::vector<std::vector<Triangle>>(gridHeight));
+    gridCells.resize(gridWidth * gridHeight);
 
     for (const Mesh& mesh : trackModel.meshes) {
         for (unsigned int i = 0; i < mesh.indices.size(); i += 3) {
@@ -359,15 +377,21 @@ void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidt
 
             Triangle tri = { v0, v1, v2 };
 
-            //loop all grid cells the triangle overlaps
-            for (int x = minGridX; x <= maxGridX; x++) {
-                for (int z = minGridZ; z <= maxGridZ; z++) {
-                    gridCells[x][z].push_back(tri);
+            // Assign the triangle to the relevant grid cells
+            for (int x = minGridX; x <= maxGridX; ++x) {
+                for (int z = minGridZ; z <= maxGridZ; ++z) {
+                    int index = getGridIndex(x, z, gridWidth);
+                    gridCells[index].push_back(tri);
                 }
             }
         }
     }
+
+    printGridCells();
+
 }
+
+
 
 void handleCarSound(SoundManager& soundManager, const Car& car) {
     static float fadeOutVolume = 1.0f;

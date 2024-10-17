@@ -24,7 +24,7 @@ void Car::applyConfig(const CarConfig& config) {
     backLeftWheel.setOffset(config.backLeftWheelOffset);
     backRightWheel.setOffset(config.backRightWheelOffset);
 }
-void Car::setCollisionGrid(const std::vector<std::vector<std::vector<Triangle>>>& gridCells, float gridSize, int gridWidth, int gridHeight) {
+void Car::setCollisionGrid(const std::vector<std::vector<Triangle>>& gridCells, float gridSize, int gridWidth, int gridHeight) {
     collisionChecker.setGrid(gridCells, gridSize, gridWidth, gridHeight);
 }
 
