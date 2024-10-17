@@ -144,6 +144,10 @@ int main()
    Model carModel("Objects/chev-nascar/body.obj");
    Model wheelModel("Objects/chev-nascar/wheel1.obj");
 
+   ourShader.use();
+   ourShader.setInt("material.diffuse", 0);
+   ourShader.setInt("material.specular", 1);
+
     chevConfig.position = glm::vec3(0.0f, 0.0f, 0.0f);
     chevConfig.bodyOffset = glm::vec3(0.0f, -1.0f, 0.0f);
     chevConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -183,14 +187,32 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-        // don't forget to enable shader before setting uniforms
+        ourShader.setFloat("material.shininess", 50.0f);
+        // directional light
+        ourShader.setVec3("dirLight.direction", -0.5f, -1.0f, -0.5f);
+        ourShader.setVec3("dirLight.ambient", 0.4f, 0.4f, 0.4f);
+        ourShader.setVec3("dirLight.diffuse", 0.8f, 0.8f, 0.8f);
+        ourShader.setVec3("dirLight.specular", 0.6f, 0.6f, 0.6f);
         ourShader.use();
+
+        // spotLight
+        ourShader.setVec3("spotLight.position", car.getPosition());
+        ourShader.setVec3("spotLight.direction", car.getDirection());
+        ourShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+        ourShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
+        ourShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+        ourShader.setFloat("spotLight.constant", 1.0f);
+        ourShader.setFloat("spotLight.linear", 0.09f);
+        ourShader.setFloat("spotLight.quadratic", 0.032f);
+        ourShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        ourShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 200.0f);
         glm::mat4 view = camera.GetViewMatrix();
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
+
 
         //track
         glm::mat4 model = glm::mat4(1.0f);
