@@ -126,8 +126,9 @@ int main()
         "Textures/skybox/back.jpg"
     };
     Skybox skybox(faces, skyboxShader.getID());
-    Model trackModel("Objects/racetrack/track3.obj");
-    Model trackCollisionModel("Objects/racetrack/track.obj");
+    Model trackModel("Objects/racetrack/track.obj");
+    Model trackCollisionModel("Objects/racetrack/trackCol.obj");
+    Model trackVisual("Objects/racetrack/track3.obj");
 
    //Model carModel("Objects/jeep/car.obj");
    //Model wheelModel("Objects/jeep/wheel.obj");
@@ -151,8 +152,8 @@ int main()
     chevConfig.backLeftWheelOffset = glm::vec3(0.45f, -0.6f, -1.00f);
 
     car.applyConfig(chevConfig);
-    assignTrianglesToGrid(trackCollisionModel, gridSize, gridWidth, gridHeight, gridCells);
-    assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCellsCollision);
+    assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCells);
+    assignTrianglesToGrid(trackCollisionModel, gridSize, gridWidth, gridHeight, gridCellsCollision);
     car.setCollisionGrid(gridCells,gridCellsCollision, gridSize, gridWidth, gridHeight);
 
     soundManager.preloadSound("accelerate", "Sounds/accelerate_sound2.wav");
@@ -210,7 +211,7 @@ int main()
         //track
         glm::mat4 model = glm::mat4(1.0f);
         ourShader.setMat4("model", model);
-        trackModel.Draw(ourShader);
+        trackVisual.Draw(ourShader);
 
         //car body
         car.updatePositionAndDirection(deltaTime);
