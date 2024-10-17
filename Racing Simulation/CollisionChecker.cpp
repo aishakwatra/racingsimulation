@@ -18,6 +18,11 @@ int customMax(int a, int b) {
     return (a > b) ? a : b;
 }
 
+template <typename T>
+T clamp(T value, T minValue, T maxValue) {
+    return std::max(minValue, std::min(value, maxValue));
+}
+
 
 CollisionChecker::CollisionChecker() : gridCells(nullptr) {}
 
@@ -66,6 +71,31 @@ bool CollisionChecker::checkTrackIntersectionWithGrid(glm::vec3 rayOrigin, glm::
     return hasIntersection;
 }
 
+bool CollisionChecker::checkTrackIntersectionWithGrid(const AABB& aabb) {
+
+    int minGridX = static_cast<int>(std::floor(aabb.min.x / gridSize));
+    int maxGridX = static_cast<int>(std::floor(aabb.max.x / gridSize));
+    int minGridZ = static_cast<int>(std::floor(aabb.min.z / gridSize));
+    int maxGridZ = static_cast<int>(std::floor(aabb.max.z / gridSize));
+
+    minGridX = clamp(minGridX, 0, gridWidth - 1);
+    maxGridX = clamp(maxGridX, 0, gridWidth - 1);
+    minGridZ = clamp(minGridZ, 0, gridHeight - 1);
+    maxGridZ = clamp(maxGridZ, 0, gridHeight - 1);
+
+    for (int x = minGridX; x <= maxGridX; ++x) {
+        for (int z = minGridZ; z <= maxGridZ; ++z) {
+            for (const Triangle& tri : (*gridCells)[x][z]) {
+                if (intersectAABBWithTriangle(aabb, tri)) {
+                    return true; 
+                }
+            }
+        }
+    }
+
+    return false;  // No collision detected
+}
+
 bool CollisionChecker::intersectRayWithTriangle(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2, float& t) {
 
     const float EPSILON = 0.0000001f;
@@ -91,5 +121,72 @@ bool CollisionChecker::intersectRayWithTriangle(glm::vec3 rayOrigin, glm::vec3 r
 
     t = f * glm::dot(edge2, q);
     return t > EPSILON;  // Valid intersection
+}
+
+bool CollisionChecker::overlapOnAxis(const glm::vec3& aabbHalfSize, const glm::vec3& axis, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2) {
+    
+    // Ignore small axes to avoid numerical issues
+    const float EPSILON = 1e-6f;
+    if (glm::length(axis) < EPSILON) return true;
+
+    // Project triangle vertices onto the axis
+    float p0 = glm::dot(v0, axis);
+    float p1 = glm::dot(v1, axis);
+    float p2 = glm::dot(v2, axis);
+
+    // Find the min and max projection values for the triangle
+    float triMin = std::min({ p0, p1, p2 });
+    float triMax = std::max({ p0, p1, p2 });
+
+    // Project the AABB onto the axis
+    float r = aabbHalfSize.x * std::abs(axis.x) + aabbHalfSize.y * std::abs(axis.y) + aabbHalfSize.z * std::abs(axis.z);
+
+    // Check for overlap
+    return !(triMin > r || triMax < -r);
+
+}
+
+
+//SEPERATING AXIS THEOREM
+
+
+bool CollisionChecker::intersectAABBWithTriangle(const AABB& aabb, const Triangle& tri) {
+
+    glm::vec3 aabbCenter = (aabb.min + aabb.max) * 0.5f;
+    glm::vec3 aabbHalfSize = (aabb.max - aabb.min) * 0.5f;
+
+    // Triangle vertices relative to the AABB center
+    glm::vec3 v0 = tri.v0 - aabbCenter;
+    glm::vec3 v1 = tri.v1 - aabbCenter;
+    glm::vec3 v2 = tri.v2 - aabbCenter;
+
+    // Triangle edges
+    glm::vec3 f0 = v1 - v0;
+    glm::vec3 f1 = v2 - v1;
+    glm::vec3 f2 = v0 - v2;
+
+    // 1. Test axes aabbX, aabbY, aabbZ (AABB's local axes)
+    if (!overlapOnAxis(aabbHalfSize, glm::vec3(1, 0, 0), v0, v1, v2)) return false;
+    if (!overlapOnAxis(aabbHalfSize, glm::vec3(0, 1, 0), v0, v1, v2)) return false;
+    if (!overlapOnAxis(aabbHalfSize, glm::vec3(0, 0, 1), v0, v1, v2)) return false;
+
+    // 2. Test axes perpendicular to triangle edges and AABB axes
+    if (!overlapOnAxis(aabbHalfSize, glm::cross(f0, glm::vec3(1, 0, 0)), v0, v1, v2)) return false;
+    if (!overlapOnAxis(aabbHalfSize, glm::cross(f0, glm::vec3(0, 1, 0)), v0, v1, v2)) return false;
+    if (!overlapOnAxis(aabbHalfSize, glm::cross(f0, glm::vec3(0, 0, 1)), v0, v1, v2)) return false;
+
+    if (!overlapOnAxis(aabbHalfSize, glm::cross(f1, glm::vec3(1, 0, 0)), v0, v1, v2)) return false;
+    if (!overlapOnAxis(aabbHalfSize, glm::cross(f1, glm::vec3(0, 1, 0)), v0, v1, v2)) return false;
+    if (!overlapOnAxis(aabbHalfSize, glm::cross(f1, glm::vec3(0, 0, 1)), v0, v1, v2)) return false;
+
+    if (!overlapOnAxis(aabbHalfSize, glm::cross(f2, glm::vec3(1, 0, 0)), v0, v1, v2)) return false;
+    if (!overlapOnAxis(aabbHalfSize, glm::cross(f2, glm::vec3(0, 1, 0)), v0, v1, v2)) return false;
+    if (!overlapOnAxis(aabbHalfSize, glm::cross(f2, glm::vec3(0, 0, 1)), v0, v1, v2)) return false;
+
+    // 3. Test the triangle normal axis
+    glm::vec3 triangleNormal = glm::normalize(glm::cross(f0, f1));
+    if (!overlapOnAxis(aabbHalfSize, triangleNormal, v0, v1, v2)) return false;
+
+    return true;
 }
 

@@ -1,9 +1,2 @@
-﻿  Racing Simulation.cpp
-C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(277,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(278,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(279,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(280,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(306,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(307,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(320,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Racing Simulation.vcxproj -> C:\Users\orangeduck\Documents\Capt\racingsimulation\x64\Debug\Racing Simulation.exe
+﻿  Car.cpp
+  Racing Simulation.vcxproj -> C:\Users\user\Documents\GitHub\racingsimulation\x64\Debug\Racing Simulation.exe

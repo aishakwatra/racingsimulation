@@ -29,41 +29,62 @@ void Car::setCollisionGrid(const std::vector<std::vector<std::vector<Triangle>>>
 }
 
 void Car::updateModelMatrix() {
-    //instantiate rays
-    glm::vec3 frontLeftOffset = glm::vec3(-0.65f, 1.0f, 0.85f);
-    glm::vec3 frontRightOffset = glm::vec3(0.65f, 1.0f, 0.85f);
-    glm::vec3 backLeftOffset = glm::vec3(-0.65f, 1.0f, -0.85f);
-    glm::vec3 backRightOffset = glm::vec3(0.65f, 1.0f, -0.85f);
+
+    sideCollisionAABB = computeSideAABB(nextPosition);
+
+    bool sideCollision = collisionChecker.checkTrackIntersectionWithGrid(sideCollisionAABB);
+
+    if (sideCollision) {
+        speed = 0.0f;
+    } else {
+        position = nextPosition;
+    }
+
+    // Offsets for wheel rays (pointing downward)
+    glm::vec3 frontLeftWheelOffset = glm::vec3(-0.65f, 1.0f, 0.85f);
+    glm::vec3 frontRightWheelOffset = glm::vec3(0.65f, 1.0f, 0.85f);
+    glm::vec3 backLeftWheelOffset = glm::vec3(-0.65f, 1.0f, -0.85f);
+    glm::vec3 backRightWheelOffset = glm::vec3(0.65f, 1.0f, -0.85f);
+
+    // Offsets for side rays (pointing outward)
+    glm::vec3 frontOffset(0.0f, 0.5f, 1.2f);
+    glm::vec3 backOffset(0.0f, 0.5f, -1.2f);
+    glm::vec3 leftOffset(-1.2f, 0.5f, 0.0f);
+    glm::vec3 rightOffset(1.2f, 0.5f, 0.0f);
+
 
     glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 
-    glm::vec3 frontLeftRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(frontLeftOffset, 1.0f));
-    glm::vec3 frontRightRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(frontRightOffset, 1.0f));
-    glm::vec3 backLeftRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backLeftOffset, 1.0f));
-    glm::vec3 backRightRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backRightOffset, 1.0f));
+    frontLeftWheelRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(frontLeftWheelOffset, 1.0f));
+    frontRightWheelRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(frontRightWheelOffset, 1.0f));
+    backLeftWheelRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backLeftWheelOffset, 1.0f));
+    backRightWheelRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backRightWheelOffset, 1.0f));
 
-    glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+    frontRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(frontOffset, 1.0f));
+    backRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backOffset, 1.0f));
+    leftSideRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(leftOffset, 1.0f));
+    rightSideRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(rightOffset, 1.0f));
 
-    //find intersections
-    glm::vec3 frontLeftIntersection, frontRightIntersection, backLeftIntersection, backRightIntersection;
-    collisionChecker.checkTrackIntersectionWithGrid(frontLeftRayOrigin, rayDirection, frontLeftIntersection);
-    collisionChecker.checkTrackIntersectionWithGrid(frontRightRayOrigin, rayDirection, frontRightIntersection);
-    collisionChecker.checkTrackIntersectionWithGrid(backLeftRayOrigin, rayDirection, backLeftIntersection);
-    collisionChecker.checkTrackIntersectionWithGrid(backRightRayOrigin, rayDirection, backRightIntersection);
+    //find wheel collisions
+
+    collisionChecker.checkTrackIntersectionWithGrid(frontLeftWheelRayOrigin, downwardRayDirection, frontLeftWheelIntersection);
+    collisionChecker.checkTrackIntersectionWithGrid(frontRightWheelRayOrigin, downwardRayDirection, frontRightWheelIntersection);
+    collisionChecker.checkTrackIntersectionWithGrid(backLeftWheelRayOrigin, downwardRayDirection, backLeftWheelIntersection);
+    collisionChecker.checkTrackIntersectionWithGrid(backRightWheelRayOrigin, downwardRayDirection, backRightWheelIntersection);
 
     //update car orientation
-    glm::vec3 midFront = (frontLeftIntersection + frontRightIntersection) / 2.0f;
-    glm::vec3 midBack = (backLeftIntersection + backRightIntersection) / 2.0f;
+    glm::vec3 midFront = (frontLeftWheelIntersection + frontRightWheelIntersection) / 2.0f;
+    glm::vec3 midBack = (backLeftWheelIntersection + backRightWheelIntersection) / 2.0f;
 
-    float rollHeightDifference = ((frontRightIntersection.y + backRightIntersection.y) / 2.0f) - ((frontLeftIntersection.y + backLeftIntersection.y) / 2.0f);
-    float pitchHeightDifference = ((frontLeftIntersection.y + frontRightIntersection.y) / 2.0f) - ((backLeftIntersection.y + backRightIntersection.y) / 2.0f);
+    float rollHeightDifference = ((frontRightWheelIntersection.y + backRightWheelIntersection.y) / 2.0f) - ((frontLeftWheelIntersection.y + backLeftWheelIntersection.y) / 2.0f);
+    float pitchHeightDifference = ((frontLeftWheelIntersection.y + frontRightWheelIntersection.y) / 2.0f) - ((backLeftWheelIntersection.y + backRightWheelIntersection.y) / 2.0f);
 
     // compute pitch and roll
     float pitchAngle = glm::atan(-pitchHeightDifference / glm::length(midFront - midBack));
-    float rollAngle = glm::atan(rollHeightDifference / glm::length(frontRightIntersection - frontLeftIntersection));
+    float rollAngle = glm::atan(rollHeightDifference / glm::length(frontRightWheelIntersection - frontLeftWheelIntersection));
 
     // update car's y-position
-    position.y = (frontLeftIntersection.y + frontRightIntersection.y + backLeftIntersection.y + backRightIntersection.y) / 4.0f + 1.5f;
+    position.y = (frontLeftWheelIntersection.y + frontRightWheelIntersection.y + backLeftWheelIntersection.y + backRightWheelIntersection.y) / 4.0f + 1.5f;
 
     // Update the model matrix
     modelMatrix = glm::mat4(1.0f);
@@ -72,7 +93,6 @@ void Car::updateModelMatrix() {
     modelMatrix = glm::rotate(modelMatrix, pitchAngle, glm::vec3(1.0f, 0.0f, 0.0f));  // Pitch (up/down)
     modelMatrix = glm::rotate(modelMatrix, rollAngle, glm::vec3(0.0f, 0.0f, 1.0f));  // Roll (side-to-side)
    
-
     // Update wheels' model matrices
     frontLeftWheel.updateModelMatrix(modelMatrix,wheelScale, true);
     frontRightWheel.updateModelMatrix(modelMatrix, wheelScale,true);
@@ -127,20 +147,26 @@ float Car::getMaxSpeed() const {
 }
 
 void Car::accelerate(float deltaTime) {
-    speed += acceleration * deltaTime;
-    if (speed > maxSpeed) {
-        speed = maxSpeed;
+    if (canMoveForward) {
+        speed += acceleration * deltaTime;
+        if (speed > maxSpeed) {
+            speed = maxSpeed;
+        }
     }
+
 }
 
 void Car::brake(float deltaTime) {
-    speed -= brakingForce * deltaTime;
-    if (speed < -maxSpeed / 2.0f) {
-        speed = -maxSpeed / 2.0f; // Limit reverse speed to half max speed
+    if (canMoveBackward) {
+        speed -= brakingForce * deltaTime;
+        if (speed < -maxSpeed / 2.0f) {
+            speed = -maxSpeed / 2.0f;  // Limit reverse speed
+        }
     }
 }
 
 void Car::slowDown(float deltaTime) {
+
     if (speed > 0) {
         speed -= acceleration * deltaTime;
         if (speed < 0) speed = 0; // Stop the car when speed reaches 0
@@ -149,6 +175,7 @@ void Car::slowDown(float deltaTime) {
         speed += acceleration * deltaTime;
         if (speed > 0) speed = 0; // Stop the car when reverse speed reaches 0
     }
+
 }
 
 void Car::steerLeft(float deltaTime) {
@@ -175,14 +202,22 @@ void Car::centerSteering(float deltaTime) {
 }
 
 void Car::updatePositionAndDirection(float deltaTime) {
+
     // Update the car's direction based on the rotation (yaw)
     direction = glm::vec3(sin(glm::radians(rotation)), 0.0f, cos(glm::radians(rotation)));
 
-    // If the car is moving, update its rotation and position
+    // If the car is moving, update its rotation
     if (speed != 0.0f) {
         rotation += glm::clamp(frontLeftWheel.steeringAngle, -45.0f, 45.0f) * deltaTime;
-        position += direction * speed * deltaTime;
+
+        // Predict the next position
+        nextPosition = position + direction * speed * deltaTime;
     }
+    else {
+        nextPosition = position;  // No movement if the car is not moving
+    }
+
+
 }
 
 void Car::updateWheelRotations(float deltaTime) {
@@ -193,5 +228,18 @@ void Car::updateWheelRotations(float deltaTime) {
     backRightWheel.rotation += rotationSpeed;
     frontLeftWheel.rotation += rotationSpeed;
     frontRightWheel.rotation += rotationSpeed;
+
+}
+
+
+AABB Car::computeSideAABB(const glm::vec3& nextPosition) const {
+
+    // half the size of the car's bounding box
+    glm::vec3 halfSize(1.0f, 0.5f, 2.0f);  //width, height, length 
+
+    glm::vec3 min = nextPosition - halfSize;
+    glm::vec3 max = nextPosition + halfSize;
+
+    return { min, max };
 
 }
