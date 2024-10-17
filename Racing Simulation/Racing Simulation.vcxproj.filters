@@ -6,6 +6,7 @@
     <ClCompile Include="Wheel.cpp" />
     <ClCompile Include="CollisionChecker.cpp" />
     <ClCompile Include="Car.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -18,6 +19,7 @@
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="Wheel.h" />
     <ClInclude Include="CollisionChecker.h" />
+    <ClInclude Include="SoundManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\model\model_loading.fs" />

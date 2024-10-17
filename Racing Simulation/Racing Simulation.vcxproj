@@ -139,6 +139,7 @@
     <ClInclude Include="shader.h" />
     <ClInclude Include="shader_m.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="SoundManager.h" />
     <ClInclude Include="Wheel.h" />
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +147,7 @@
     <ClCompile Include="CollisionChecker.cpp" />
     <ClCompile Include="Racing Simulation.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="Wheel.cpp" />
   </ItemGroup>
   <ItemGroup>

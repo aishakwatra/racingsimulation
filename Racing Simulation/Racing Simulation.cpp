@@ -16,8 +16,8 @@
 #include "Car.h" 
 #include "Carconfig.h"
 
+#include "SoundManager.h"
 
-using namespace irrklang;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -27,7 +27,7 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 void processInput(GLFWwindow* window);
 
-void handleCarSound();
+void handleCarSound(SoundManager& soundManager, const Car& car);
 
 void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<std::vector<Triangle>>>& gridCells);
 
@@ -50,21 +50,17 @@ glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
 
 //track divided into 15x15 grid with each block being 20x20 in size
-int gridWidth = 15;
-int gridHeight = 15; 
-float gridSize = 20.0f; 
-
-ISoundEngine* soundEngine;
-
-ISound* accelerationSound = nullptr;
-bool soundPlaying = false;
-
+int gridWidth = 50;
+int gridHeight = 50; 
+float gridSize = 5.0f; 
 
 CarConfig chevConfig;
 Car car(chevConfig);
 
-
 std::vector<std::vector<std::vector<Triangle>>> gridCells;
+std::vector<std::vector<std::vector<Triangle>>> gridCellsCollision;
+
+SoundManager soundManager;
 
 
 int main()
@@ -109,12 +105,6 @@ int main()
     // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
     stbi_set_flip_vertically_on_load(false);
 
-    soundEngine = createIrrKlangDevice();
-
-    if (!soundEngine) {
-        std::cout << "Could not start sound engine" << std::endl;
-        return 0;
-    }
 
     // configure global opengl state
     // -----------------------------
@@ -138,6 +128,7 @@ int main()
     };
     Skybox skybox(faces, skyboxShader.getID());
     Model trackModel("Objects/racetrack/track3.obj");
+    Model trackCollisionModel("Objects/racetrack/track.obj");
 
    //Model carModel("Objects/jeep/car.obj");
    //Model wheelModel("Objects/jeep/wheel.obj");
@@ -161,8 +152,11 @@ int main()
     chevConfig.backLeftWheelOffset = glm::vec3(0.45f, -0.6f, -1.00f);
 
     car.applyConfig(chevConfig);
-    assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCells);
-    car.setCollisionGrid(gridCells, gridSize, gridWidth, gridHeight);
+    assignTrianglesToGrid(trackCollisionModel, gridSize, gridWidth, gridHeight, gridCells);
+    assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCellsCollision);
+    car.setCollisionGrid(gridCells,gridCellsCollision, gridSize, gridWidth, gridHeight);
+
+    soundManager.preloadSound("accelerate", "Sounds/accelerate_sound2.wav");
 
     // render loop
     // -----------
@@ -220,6 +214,7 @@ int main()
         trackModel.Draw(ourShader);
 
         //car body
+        car.updatePositionAndDirection(deltaTime);
         car.updateModelMatrix();  // Update the car and wheel transformations
         ourShader.setMat4("model", car.getModelMatrix());
         carModel.Draw(ourShader);
@@ -238,15 +233,13 @@ int main()
 
         skybox.draw(view, projection);
 
-        handleCarSound();
+        handleCarSound(soundManager, car);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    soundEngine->drop();
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -401,57 +394,35 @@ void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidt
     }
 }
 
-void handleCarSound()
-{
-
+void handleCarSound(SoundManager& soundManager, const Car& car) {
     static float fadeOutVolume = 1.0f;
 
-    // Initialize the sound only once
-    if (!accelerationSound && !soundPlaying)
-    {
-        accelerationSound = soundEngine->play2D("Sounds/accelerate_sound2.wav", true, true, true);
-        accelerationSound->setVolume(0.0f);
-        accelerationSound->setIsPaused(false);
-        soundPlaying = true;
-
-    }
-
-
-    if (car.getSpeed() > 0.0f)
-    {
-
-        if (accelerationSound->getIsPaused())
-        {
-            accelerationSound->setPlaybackSpeed(1.0f);
-            accelerationSound->setVolume(0.2f);
-            fadeOutVolume = 1.0f;
-            accelerationSound->setIsPaused(false);
+    // Check if the car is moving forward
+    if (car.getSpeed() > 0.0f) {
+        // If the sound is not playing, play it from the beginning
+        if (!soundManager.isPlaying("accelerate")) {
+            soundManager.stopSound("accelerate");  // Ensure the sound is reset
+            soundManager.playSound("accelerate", true);  // Play looped
+            soundManager.setVolume("accelerate", 0.2f);  // Start with a low volume
         }
 
+        // Adjust pitch and volume based on speed
         float pitch = 1.0f + (car.getSpeed() / car.getMaxSpeed());
-        accelerationSound->setPlaybackSpeed(pitch);
+        soundManager.setPlaybackSpeed("accelerate", pitch);
 
         float volume = glm::clamp(car.getSpeed() / car.getMaxSpeed(), 0.2f, 1.0f);
-        accelerationSound->setVolume(volume);
+        soundManager.setVolume("accelerate", volume);
 
         fadeOutVolume = volume;
-
     }
-    else if (car.getSpeed() == 0.0f && !accelerationSound->getIsPaused())
-    {
-
-        if (fadeOutVolume > 0.0f)
-        {
+    else {  // If the car is stopped
+        if (fadeOutVolume > 0.0f) {
             fadeOutVolume -= deltaTime * 0.5f;
             fadeOutVolume = glm::clamp(fadeOutVolume, 0.0f, 1.0f);
-            accelerationSound->setVolume(fadeOutVolume);
+            soundManager.setVolume("accelerate", fadeOutVolume);
         }
-        else
-        {
-            accelerationSound->setIsPaused(true);
-            accelerationSound->setPlaybackSpeed(1.0f);
-
+        else {
+            soundManager.stopSound("accelerate");  // Stop the sound when fully faded out
         }
     }
-
 }
