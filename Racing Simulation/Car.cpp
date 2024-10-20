@@ -25,33 +25,33 @@ void Car::applyConfig(const CarConfig& config) {
     backRightWheel.setOffset(config.backRightWheelOffset);
 }
 void Car::setCollisionGrid(const std::vector<std::vector<Triangle>>& gridCells,const std::vector<std::vector<Triangle>>& gridCellsCollision, float gridSize, int gridWidth, int gridHeight) {
-    collisionChecker.setGrid(gridCells, gridSize, gridWidth, gridHeight);
+    collisionChecker.setGrid(gridCells, gridCellsCollision, gridSize, gridWidth, gridHeight);
 }
 
 void Car::updateModelMatrix() {
 
-    sideCollisionAABB = computeSideAABB(nextPosition);
+    sideCollisionAABB.update(modelMatrix);
 
     bool sideCollision = collisionChecker.checkTrackIntersectionWithGrid(sideCollisionAABB);
 
     if (sideCollision) {
-        speed = 0.0f;
+        glm::vec3 correction = -direction * 0.3f;  // Increase correction step
+        position += correction;
+
+        //bounce-back effect and reduce speed more aggressively
+        speed *= -0.5f;
+
     } else {
+
         position = nextPosition;
+
     }
 
     // Offsets for wheel rays (pointing downward)
-    glm::vec3 frontLeftWheelOffset = glm::vec3(-0.65f, 1.0f, 0.85f);
-    glm::vec3 frontRightWheelOffset = glm::vec3(0.65f, 1.0f, 0.85f);
-    glm::vec3 backLeftWheelOffset = glm::vec3(-0.65f, 1.0f, -0.85f);
-    glm::vec3 backRightWheelOffset = glm::vec3(0.65f, 1.0f, -0.85f);
-
-    // Offsets for side rays (pointing outward)
-    glm::vec3 frontOffset(0.0f, 0.5f, 1.2f);
-    glm::vec3 backOffset(0.0f, 0.5f, -1.2f);
-    glm::vec3 leftOffset(-1.2f, 0.5f, 0.0f);
-    glm::vec3 rightOffset(1.2f, 0.5f, 0.0f);
-
+    glm::vec3 frontLeftWheelOffset = glm::vec3(-0.65f, 1.2f, 0.85f);
+    glm::vec3 frontRightWheelOffset = glm::vec3(0.65f, 1.2f, 0.85f);
+    glm::vec3 backLeftWheelOffset = glm::vec3(-0.65f, 1.2f, -0.85f);
+    glm::vec3 backRightWheelOffset = glm::vec3(0.65f, 1.2f, -0.85f);
 
     glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -59,11 +59,6 @@ void Car::updateModelMatrix() {
     frontRightWheelRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(frontRightWheelOffset, 1.0f));
     backLeftWheelRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backLeftWheelOffset, 1.0f));
     backRightWheelRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backRightWheelOffset, 1.0f));
-
-    frontRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(frontOffset, 1.0f));
-    backRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backOffset, 1.0f));
-    leftSideRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(leftOffset, 1.0f));
-    rightSideRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(rightOffset, 1.0f));
 
     //find wheel collisions
 
@@ -147,22 +142,22 @@ float Car::getMaxSpeed() const {
 }
 
 void Car::accelerate(float deltaTime) {
-    if (canMoveForward) {
-        speed += acceleration * deltaTime;
+
+       speed += acceleration * deltaTime;
         if (speed > maxSpeed) {
             speed = maxSpeed;
         }
-    }
+    
 
 }
 
 void Car::brake(float deltaTime) {
-    if (canMoveBackward) {
+
         speed -= brakingForce * deltaTime;
         if (speed < -maxSpeed / 2.0f) {
             speed = -maxSpeed / 2.0f;  // Limit reverse speed
         }
-    }
+    
 }
 
 void Car::slowDown(float deltaTime) {
@@ -228,18 +223,5 @@ void Car::updateWheelRotations(float deltaTime) {
     backRightWheel.rotation += rotationSpeed;
     frontLeftWheel.rotation += rotationSpeed;
     frontRightWheel.rotation += rotationSpeed;
-
-}
-
-
-AABB Car::computeSideAABB(const glm::vec3& nextPosition) const {
-
-    // half the size of the car's bounding box
-    glm::vec3 halfSize(1.0f, 0.5f, 2.0f);  //width, height, length 
-
-    glm::vec3 min = nextPosition - halfSize;
-    glm::vec3 max = nextPosition + halfSize;
-
-    return { min, max };
 
 }

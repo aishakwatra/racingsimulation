@@ -15,7 +15,6 @@
 
 #include "Car.h" 
 #include "Carconfig.h"
-
 #include "SoundManager.h"
 
 
@@ -29,7 +28,9 @@ void processInput(GLFWwindow* window);
 
 void handleCarSound(SoundManager& soundManager, const Car& car);
 
+float calculateOptimalGridSize(const Model& trackModel, int desiredGridCount);
 void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<Triangle>>& gridCells);
+void checkTrackSize(const Model& trackModel);
 
 // settings
 const unsigned int SCR_WIDTH = 1920;
@@ -50,9 +51,9 @@ glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
 
 //track divided into 15x15 grid with each block being 20x20 in size
-int gridWidth = 50;
-int gridHeight = 50; 
-float gridSize = 5.0f; 
+int gridWidth = 10;
+int gridHeight = 10; 
+float gridSize = 0.0f; 
 
 CarConfig chevConfig;
 Car car(chevConfig);
@@ -125,6 +126,7 @@ int main()
         "Textures/skybox/front.jpg",
         "Textures/skybox/back.jpg"
     };
+
     Skybox skybox(faces, skyboxShader.getID());
     Model trackModel("Objects/racetrack/track3.obj");
     Model trackCollisionModel("Objects/racetrack/track.obj");
@@ -149,6 +151,8 @@ int main()
     chevConfig.frontLeftWheelOffset = glm::vec3(0.45f, -0.6f, 0.80f);
     chevConfig.backRightWheelOffset = glm::vec3(-0.45f, -0.6f, -1.00f);
     chevConfig.backLeftWheelOffset = glm::vec3(0.45f, -0.6f, -1.00f);
+
+    gridSize = calculateOptimalGridSize(trackModel, gridHeight);
 
     car.applyConfig(chevConfig);
     assignTrianglesToGrid(trackCollisionModel, gridSize, gridWidth, gridHeight, gridCells);
@@ -351,11 +355,13 @@ glm::vec3 calculateTriangleNormal(const glm::vec3& v0, const glm::vec3& v1, cons
 } 
 
 void printGridCells() {
+
     int totalSum = 0;
 
     for (int i = 0; i < gridCells.size(); ++i) {
 
         int num = gridCells[i].size();  // Number of triangles in this cell
+        std::cout << "Grid Cell " << i << std::endl;
         std::cout << "Number of triangles: " << num << std::endl;
 
         totalSum += num;
@@ -416,6 +422,35 @@ void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidt
 
 }
 
+void checkTrackSize(const Model& trackModel) {
+
+    int minX = 0;
+    int maxX = 0;
+
+    for (const Mesh& mesh : trackModel.meshes) {
+        for (unsigned int i = 0; i < mesh.indices.size(); i += 3) {
+
+            glm::vec3 v0 = mesh.vertices[mesh.indices[i]].Position;
+            glm::vec3 v1 = mesh.vertices[mesh.indices[i + 1]].Position;
+            glm::vec3 v2 = mesh.vertices[mesh.indices[i + 2]].Position;
+
+            if (v0.x < minX) minX = v0.x;
+            if (v1.x < minX) minX = v1.x;
+            if (v2.x < minX) minX = v2.x;
+
+            if (v0.x > maxX) maxX = v0.x;
+            if (v1.x > maxX) maxX = v1.x;
+            if (v2.x > maxX) maxX = v2.x;
+
+        }
+    }
+
+    std::cout << "Minimum X: " << minX << "Maximum Y" << maxX << std::endl;
+
+
+}
+
+
 
 
 void handleCarSound(SoundManager& soundManager, const Car& car) {
@@ -449,4 +484,34 @@ void handleCarSound(SoundManager& soundManager, const Car& car) {
             soundManager.stopSound("accelerate");  // Stop the sound when fully faded out
         }
     }
+}
+
+
+float calculateOptimalGridSize(const Model& trackModel, int desiredGridCount) {
+    
+    // Initialize min and max bounds
+    glm::vec3 minBounds(FLT_MAX, FLT_MAX, FLT_MAX);
+    glm::vec3 maxBounds(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+    for (const Mesh& mesh : trackModel.meshes) {
+        for (unsigned int i = 0; i < mesh.indices.size(); i++) {
+            
+            glm::vec3 vertex = mesh.vertices[mesh.indices[i]].Position;
+
+            minBounds = glm::min(minBounds, vertex);
+            maxBounds = glm::max(maxBounds, vertex);
+
+        }
+    }
+
+    // Calculate the dimensions of the bounding box for the entire track
+    glm::vec3 trackSize = maxBounds - minBounds;
+
+    // Find the maximum extent along the X and Z axes (for 2D grid division)
+    float maxDimension = glm::max(trackSize.x, trackSize.z);
+
+    // Calculate the optimal grid size based on the desired number of grids
+    float gridSize = maxDimension / desiredGridCount;
+
+    return gridSize;
 }

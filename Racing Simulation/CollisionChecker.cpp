@@ -24,7 +24,7 @@ T clamp(T value, T minValue, T maxValue) {
 }
 
 
-CollisionChecker::CollisionChecker() : gridCells(nullptr) {}
+CollisionChecker::CollisionChecker() : gridCells(nullptr), gridCellsCollision(nullptr) {}
 
 void CollisionChecker::setGrid(const std::vector<std::vector<Triangle>>& externalGridCells, const std::vector<std::vector<Triangle>>& externalGridCellsCollision,float gridSize, int gridWidth, int gridHeight) {
     gridCells = &externalGridCells;  // Store pointer to the external grid
@@ -51,7 +51,6 @@ bool CollisionChecker::checkTrackIntersectionWithGrid(glm::vec3 rayOrigin, glm::
     const float MAX_FLOAT = 3.402823466e+38F;  // Maximum float value
     float closestT = MAX_FLOAT;
     bool hasIntersection = false;
-
 
     // Iterate over the triangles in the target grid cell
     for (const Triangle& tri : (*gridCells)[cellIndex]) {

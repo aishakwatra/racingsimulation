@@ -1,13 +1,40 @@
-﻿  Car.cpp
-  CollisionChecker.cpp
-D:\DT384\racingsimulation\Racing Simulation\CollisionChecker.cpp(32,22): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-  Racing Simulation.cpp
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(292,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(293,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(294,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(295,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(321,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(322,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(335,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Generating Code...
-  Racing Simulation.vcxproj -> D:\DT384\racingsimulation\x64\Debug\Racing Simulation.exe
+﻿  Racing Simulation.cpp
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(296,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(297,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(298,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(299,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(325,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(326,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(339,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(364,38): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(438,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(439,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(440,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(442,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(443,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\user\Documents\GitHub\racingsimulation\Racing Simulation\Racing Simulation.cpp(444,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Racing Simulation.vcxproj -> C:\Users\user\Documents\GitHub\racingsimulation\x64\Debug\Racing Simulation.exe
