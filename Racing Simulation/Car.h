@@ -80,17 +80,9 @@ private:
 
     CollisionChecker collisionChecker;
 
-    // Movement control flags
-    bool canMoveForward = true;
-    bool canMoveBackward = true;
-    const float minCollisionDistance = 2.5f;
+    AABB sideCollisionAABB = AABB(glm::vec3(1.0f, 0.3f, 1.2f)); 
 
-    AABB sideCollisionAABB;  // AABB for detecting side collisions
-
-    // Method to compute the side collision AABB based on car size and position
-    AABB computeSideAABB(const glm::vec3& nextPosition) const;
-
-    glm::vec3 nextPosition;  // Store the next position for CCD
+    glm::vec3 nextPosition;
 
 
 };
