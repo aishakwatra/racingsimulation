@@ -24,5 +24,7 @@
   <ItemGroup>
     <None Include="Shaders\model\model_loading.fs" />
     <None Include="Shaders\model\model_loading.vs" />
+    <None Include="shadow_dept.fs" />
+    <None Include="shadow_dept.vs" />
   </ItemGroup>
 </Project>

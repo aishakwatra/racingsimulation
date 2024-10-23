@@ -24,6 +24,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
+void renderScene(Shader& shader);
 void processInput(GLFWwindow* window);
 
 void handleCarSound(SoundManager& soundManager, const Car& car);
@@ -38,6 +39,7 @@ const unsigned int SCR_HEIGHT = 1080;
 
 // camera
 Camera camera(glm::vec3(0.0f, 20.0f, 20.0f));
+float near_plane = 0.1f, far_plane = 200.0f;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -48,6 +50,8 @@ float lastFrame = 0.0f;
 
 glm::vec3 rayOrigin;
 glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
+
+glm::vec3 lightPos(-2.0f, 40.0f, -1.0f);
 
 
 //track divided into 15x15 grid with each block being 20x20 in size
@@ -60,6 +64,13 @@ Car car(chevConfig);
 
 std::vector<std::vector<Triangle>> gridCells;
 std::vector<std::vector<Triangle>> gridCellsCollision;
+
+Model* trackVisual;
+Model* carModel;
+Model* wheelModel;
+//Model carModel("Objects/jeep/car.obj");
+//Model wheelModel("Objects/jeep/wheel.obj");
+
 
 SoundManager soundManager;
 
@@ -114,7 +125,7 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("Shaders/model/model_loading.vs", "Shaders/model/model_loading.fs");
-
+    Shader depthShader("Shaders/shadow/shadow_depth.vs", "Shaders/shadow/shadow_depth.fs");
     // load models
     // -----------
     Shader skyboxShader("Shaders/skybox/skybox.vs", "Shaders/skybox/skybox.fs");
@@ -130,16 +141,11 @@ int main()
     Skybox skybox(faces, skyboxShader.getID());
     Model trackModel("Objects/racetrack/track.obj");
     Model trackCollisionModel("Objects/racetrack/trackCol.obj");
-    Model trackVisual("Objects/racetrack/track3.obj");
 
-   //Model carModel("Objects/jeep/car.obj");
-   //Model wheelModel("Objects/jeep/wheel.obj");
-   Model carModel("Objects/chev-nascar/body.obj");
-   Model wheelModel("Objects/chev-nascar/wheel1.obj");
 
-   ourShader.use();
-   ourShader.setInt("material.diffuse", 0);
-   ourShader.setInt("material.specular", 1);
+    trackVisual = new Model("Objects/racetrack/track3.obj");
+    carModel = new Model("Objects/chev-nascar/body.obj");
+    wheelModel = new Model("Objects/chev-nascar/wheel1.obj");
 
     chevConfig.position = glm::vec3(0.0f, 0.0f, 0.0f);
     chevConfig.bodyOffset = glm::vec3(0.0f, -1.0f, 0.0f);
@@ -162,6 +168,30 @@ int main()
 
     soundManager.preloadSound("accelerate", "Sounds/accelerate_sound2.wav");
 
+    const unsigned int SHADOW_WIDTH = SCR_WIDTH, SHADOW_HEIGHT = SCR_HEIGHT;
+    unsigned int depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);
+    // create depth texture
+    unsigned int depthMap;
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    // attach depth texture as FBO's depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    ourShader.use();
+    ourShader.setInt("diffuseTexture", 0);
+    ourShader.setInt("shadowMap", 1);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -185,55 +215,40 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-        ourShader.setFloat("material.shininess", 50.0f);
-        // directional light
-        ourShader.setVec3("dirLight.direction", -0.5f, -1.0f, -0.5f);
-        ourShader.setVec3("dirLight.ambient", 0.4f, 0.4f, 0.4f);
-        ourShader.setVec3("dirLight.diffuse", 0.8f, 0.8f, 0.8f);
-        ourShader.setVec3("dirLight.specular", 0.6f, 0.6f, 0.6f);
+   	    // 1. render depth of scene to texture (from light's perspective)
+        glm::mat4 lightProjection, lightView;
+        glm::mat4 lightSpaceMatrix;
+        
+        //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+        lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+        lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+        lightSpaceMatrix = lightProjection * lightView;
+        // render scene from light's point of view
+         depthShader.use();
+        depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glActiveTexture(GL_TEXTURE0);
+        renderScene(depthShader);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // reset viewport
+        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         ourShader.use();
-
-        // spotLight
-        ourShader.setVec3("spotLight.position", car.getPosition());
-        ourShader.setVec3("spotLight.direction", car.getDirection());
-        ourShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-        ourShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-        ourShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-        ourShader.setFloat("spotLight.constant", 1.0f);
-        ourShader.setFloat("spotLight.linear", 0.09f);
-        ourShader.setFloat("spotLight.quadratic", 0.032f);
-        ourShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        ourShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
-
         // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 200.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, near_plane, far_plane);
         glm::mat4 view = camera.GetViewMatrix();
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
+        ourShader.setVec3("viewPos", camera.Position);
+        ourShader.setVec3("lightPosition", lightPos);
+        renderScene(ourShader);
 
-
-        //track
-        glm::mat4 model = glm::mat4(1.0f);
-        ourShader.setMat4("model", model);
-        trackVisual.Draw(ourShader);
-
-        //car body
-        car.updatePositionAndDirection(deltaTime);
-        car.updateModelMatrix();  // Update the car and wheel transformations
-        ourShader.setMat4("model", car.getModelMatrix());
-        carModel.Draw(ourShader);
-
-        ourShader.setMat4("model", car.getFrontLeftWheelModelMatrix());
-        wheelModel.Draw(ourShader);
-
-        ourShader.setMat4("model", car.getFrontRightWheelModelMatrix());
-        wheelModel.Draw(ourShader);
-
-        ourShader.setMat4("model", car.getBackLeftWheelModelMatrix());
-        wheelModel.Draw(ourShader);
-
-        ourShader.setMat4("model", car.getBackRightWheelModelMatrix());
-        wheelModel.Draw(ourShader);
+       
 
         skybox.draw(view, projection);
 
@@ -245,10 +260,39 @@ int main()
         glfwPollEvents();
     }
 
+    delete trackVisual;
+    delete carModel;
+    delete wheelModel;
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
+}
+
+void renderScene(Shader& shader)
+{
+    //track
+    glm::mat4 model = glm::mat4(1.0f);
+    shader.setMat4("model", model);
+    trackVisual->Draw(shader);
+
+    //car body
+    car.updatePositionAndDirection(deltaTime);
+    car.updateModelMatrix();  // Update the car and wheel transformations
+    shader.setMat4("model", car.getModelMatrix());
+    carModel->Draw(shader);
+
+    shader.setMat4("model", car.getFrontLeftWheelModelMatrix());
+    wheelModel->Draw(shader);
+
+    shader.setMat4("model", car.getFrontRightWheelModelMatrix());
+    wheelModel->Draw(shader);
+
+    shader.setMat4("model", car.getBackLeftWheelModelMatrix());
+    wheelModel->Draw(shader);
+
+    shader.setMat4("model", car.getBackRightWheelModelMatrix());
+    wheelModel->Draw(shader);
 }
 
 

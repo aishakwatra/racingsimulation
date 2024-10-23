@@ -1,10 +1,40 @@
 ﻿  Racing Simulation.cpp
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(292,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(293,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(294,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(295,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(321,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(322,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(335,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(359,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  Racing Simulation.vcxproj -> D:\DT384\racingsimulation\x64\Debug\Racing Simulation.exe
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(340,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(341,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(342,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(343,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(369,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(370,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(383,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(408,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(482,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(482,39): warning C4244:         with
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(482,39): warning C4244:         [
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(482,39): warning C4244:             T=float
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(482,39): warning C4244:         ]
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(483,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(483,39): warning C4244:         with
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(483,39): warning C4244:         [
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(483,39): warning C4244:             T=float
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(483,39): warning C4244:         ]
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(484,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(484,39): warning C4244:         with
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(484,39): warning C4244:         [
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(484,39): warning C4244:             T=float
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(484,39): warning C4244:         ]
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(486,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(486,39): warning C4244:         with
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(486,39): warning C4244:         [
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(486,39): warning C4244:             T=float
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(486,39): warning C4244:         ]
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(487,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(487,39): warning C4244:         with
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(487,39): warning C4244:         [
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(487,39): warning C4244:             T=float
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(487,39): warning C4244:         ]
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(488,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(488,39): warning C4244:         with
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(488,39): warning C4244:         [
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(488,39): warning C4244:             T=float
+D:\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(488,39): warning C4244:         ]
+  Racing Simulation.vcxproj -> D:\Capt\racingsimulation\x64\Debug\Racing Simulation.exe
