@@ -17,6 +17,14 @@ struct CarConfig {
     glm::vec3 frontRightWheelOffset = glm::vec3(0.65f, -0.6f, 0.85f);
     glm::vec3 backLeftWheelOffset = glm::vec3(-0.65f, -0.6f, -0.85f);
     glm::vec3 backRightWheelOffset = glm::vec3(0.65f, -0.6f, -0.85f);
+    float maxSteeringAngleAtMaxSpeed = 15.0f;  // Maximum steering angle at maximum speed in degrees
+    float maxSteeringAngleAtZeroSpeed = 45.0f;  // Maximum steering angle at zero speed in degrees
+    float turnSharpnessFactor = 1.5f;
+    float calculateSteeringLimit() const {
+        // Linearly interpolate between max angles based on the current speed
+        float speedRatio = std::min(speed / maxSpeed, 1.0f);
+        return glm::mix(maxSteeringAngleAtZeroSpeed, maxSteeringAngleAtMaxSpeed, speedRatio);
+    }
 
     CarConfig() {}
 };

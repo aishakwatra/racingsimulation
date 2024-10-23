@@ -27,8 +27,9 @@ public:
     void accelerate(float deltaTime);
     void brake(float deltaTime);
     void slowDown(float deltaTime);
-    void steerLeft(float deltaTime);
-    void steerRight(float deltaTime);
+    void steerLeft(float deltaTime );
+    void steerRight(float deltaTime );
+    bool isSharpTurn(float steeringAngle) const;
     void centerSteering(float deltaTime);
     void updateWheelRotations(float deltaTime);
     void updatePositionAndDirection(float deltaTime);
@@ -55,6 +56,9 @@ private:
     float maxSpeed;
     float acceleration;
     float brakingForce;
+    float maxSteeringAngleAtMaxSpeed;  // Maximum steering angle at maximum speed in degrees
+    float maxSteeringAngleAtZeroSpeed ;  // Maximum steering angle at zero speed in degrees
+    float turnSharpnessFactor;
     glm::mat4 modelMatrix;
 
     Wheel frontLeftWheel;
@@ -84,6 +88,11 @@ private:
 
     glm::vec3 nextPosition;
 
+  
+    float calculateDynamicSteeringAngle() const {
+        float speedFactor = std::min(speed / maxSpeed, 1.0f);
+        return glm::mix(maxSteeringAngleAtZeroSpeed, maxSteeringAngleAtMaxSpeed, speedFactor);
+    }
 
 };
 

@@ -1,8 +1,12 @@
 #include "Car.h"
 
+const float SHARP_TURN_SPEED_THRESHOLD = 50.0f; // speed in km/h
+const float SHARP_TURN_ANGLE_THRESHOLD = 30.0f; // angle in degrees
+
 Car::Car(const CarConfig& config)
     : position(config.position),bodyOffset(config.bodyOffset),bodyScale(config.bodyScale), direction(config.direction), rotation(config.rotation),
-    speed(config.speed), maxSpeed(config.maxSpeed), acceleration(config.acceleration),
+    speed(config.speed), maxSpeed(config.maxSpeed), acceleration(config.acceleration), maxSteeringAngleAtMaxSpeed(config.maxSteeringAngleAtMaxSpeed),
+    maxSteeringAngleAtZeroSpeed(config.maxSteeringAngleAtZeroSpeed), turnSharpnessFactor(config.turnSharpnessFactor),
     brakingForce(config.brakingForce), wheelScale(config.wheelScale), frontLeftWheel(config.frontLeftWheelOffset ,true),
     frontRightWheel(config.frontRightWheelOffset ), backLeftWheel(config.backLeftWheelOffset ,true),
     backRightWheel(config.backRightWheelOffset ),
@@ -19,6 +23,9 @@ void Car::applyConfig(const CarConfig& config) {
     maxSpeed = config.maxSpeed;
     acceleration = config.acceleration;
     brakingForce = config.brakingForce;
+    maxSteeringAngleAtMaxSpeed = config.maxSteeringAngleAtMaxSpeed;
+    maxSteeringAngleAtZeroSpeed = config.maxSteeringAngleAtZeroSpeed;
+    turnSharpnessFactor = config.turnSharpnessFactor;
     frontLeftWheel.setOffset(config.frontLeftWheelOffset);
     frontRightWheel.setOffset(config.frontRightWheelOffset);
     backLeftWheel.setOffset(config.backLeftWheelOffset);
@@ -173,21 +180,44 @@ void Car::slowDown(float deltaTime) {
 
 }
 
-void Car::steerLeft(float deltaTime) {
-    frontLeftWheel.steeringAngle += 120.0f * deltaTime;
-    frontRightWheel.steeringAngle += 120.0f * deltaTime;
-    frontLeftWheel.steeringAngle = glm::clamp(frontLeftWheel.steeringAngle, -45.0f, 45.0f);
-    frontRightWheel.steeringAngle = glm::clamp(frontRightWheel.steeringAngle, -45.0f, 45.0f);
+bool Car::isSharpTurn(float steeringAngle) const {
+    // Define a sharp turn as having a large steering angle at a high speed
+    // You could make this more sophisticated by making the threshold speed-dependent
+    return std::abs(steeringAngle) > SHARP_TURN_ANGLE_THRESHOLD && speed > SHARP_TURN_SPEED_THRESHOLD;
 }
 
-// Steer the car to the right by decreasing the steering angle and updating the wheel direction
-void Car::steerRight(float deltaTime) {
+void Car::steerLeft(float deltaTime) {
+    float angleChange = 120.0f * deltaTime; // Degrees per second
+    frontLeftWheel.steeringAngle += angleChange;
+    frontRightWheel.steeringAngle += angleChange;
 
-    frontLeftWheel.steeringAngle -= 120.0f * deltaTime;
-    frontRightWheel.steeringAngle -= 120.0f * deltaTime;
+    // Clamp the steering angle
     frontLeftWheel.steeringAngle = glm::clamp(frontLeftWheel.steeringAngle, -45.0f, 45.0f);
     frontRightWheel.steeringAngle = glm::clamp(frontRightWheel.steeringAngle, -45.0f, 45.0f);
 
+    // Check if it's a sharp turn
+    bool sharpTurn = isSharpTurn(frontLeftWheel.steeringAngle);
+    if (sharpTurn) {
+        // Adjust handling for sharp turn, e.g., reduce speed
+        slowDown(deltaTime * 2); // Slow down faster if it's a sharp turn
+    }
+}
+
+void Car::steerRight(float deltaTime) {
+    float angleChange = -120.0f * deltaTime; // Degrees per second
+    frontLeftWheel.steeringAngle += angleChange;
+    frontRightWheel.steeringAngle += angleChange;
+
+    // Clamp the steering angle
+    frontLeftWheel.steeringAngle = glm::clamp(frontLeftWheel.steeringAngle, -45.0f, 45.0f);
+    frontRightWheel.steeringAngle = glm::clamp(frontRightWheel.steeringAngle, -45.0f, 45.0f);
+
+    // Check if it's a sharp turn
+    bool sharpTurn = isSharpTurn(frontRightWheel.steeringAngle);
+    if (sharpTurn) {
+        // Adjust handling for sharp turn
+        slowDown(deltaTime * 2); // Slow down faster if it's a sharp turn
+    }
 }
 
 // Gradually center the steering and update the wheel direction accordingly

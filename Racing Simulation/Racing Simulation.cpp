@@ -125,7 +125,7 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("Shaders/model/model_loading.vs", "Shaders/model/model_loading.fs");
-    Shader depthShader("Shaders/shadow/shadow_depth.vs", "Shaders/shadow/shadow_depth.fs");
+    Shader depthShader("Shaders/shadow/shadow_dept.vs", "Shaders/shadow/shadow_dept.fs");
     // load models
     // -----------
     Shader skyboxShader("Shaders/skybox/skybox.vs", "Shaders/skybox/skybox.fs");
@@ -221,7 +221,7 @@ int main()
         
         //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
         lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-        lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+        lightView = glm::lookAt(car.getPosition(), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
         lightSpaceMatrix = lightProjection * lightView;
         // render scene from light's point of view
          depthShader.use();
