@@ -33,7 +33,7 @@ public:
     void centerSteering(float deltaTime);
     void updateWheelRotations(float deltaTime);
     void updatePositionAndDirection(float deltaTime);
-
+    float getSteeringAngle() const;
     void setCollisionGrid(const std::vector<std::vector<Triangle>>& gridCells,const std::vector<std::vector<Triangle>>& gridCellsCollision, float gridSize, int gridWidth, int gridHeight);
 
     // Getters for position, direction, speed, and other properties
@@ -89,11 +89,6 @@ private:
     glm::vec3 nextPosition;
 
   
-    float calculateDynamicSteeringAngle() const {
-        float speedFactor = std::min(speed / maxSpeed, 1.0f);
-        return glm::mix(maxSteeringAngleAtZeroSpeed, maxSteeringAngleAtMaxSpeed, speedFactor);
-    }
-
 };
 
 

@@ -38,7 +38,7 @@ const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
 // camera
-Camera camera(glm::vec3(0.0f, 20.0f, 20.0f));
+Camera camera(glm::vec3(0.0f, 15.0f, 0.0f));
 float near_plane = 0.1f, far_plane = 200.0f;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
@@ -148,16 +148,16 @@ int main()
     wheelModel = new Model("Objects/chev-nascar/wheel1.obj");
 
     chevConfig.position = glm::vec3(0.0f, 0.0f, 0.0f);
-    chevConfig.bodyOffset = glm::vec3(0.0f, -1.0f, 0.0f);
+    chevConfig.bodyOffset = glm::vec3(0.0f, -1.5f, 0.0f);
     chevConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
     chevConfig.wheelScale = glm::vec3(0.5f, 0.5f, 0.5f);
-    chevConfig.maxSpeed = 120.0f;
-    chevConfig.acceleration = 10.0f;
+    chevConfig.maxSpeed = 40.0f;
+    chevConfig.acceleration = 5.0f;
     chevConfig.brakingForce = 20.0f;
-    chevConfig.frontRightWheelOffset = glm::vec3(-0.45f, -0.6f, 0.80f);
-    chevConfig.frontLeftWheelOffset = glm::vec3(0.45f, -0.6f, 0.80f);
-    chevConfig.backRightWheelOffset = glm::vec3(-0.45f, -0.6f, -1.00f);
-    chevConfig.backLeftWheelOffset = glm::vec3(0.45f, -0.6f, -1.00f);
+    chevConfig.frontRightWheelOffset = glm::vec3(-0.55f, -1.2f, 1.10f);
+    chevConfig.frontLeftWheelOffset = glm::vec3(0.55f, -1.2f, 1.10f);
+    chevConfig.backRightWheelOffset = glm::vec3(-0.55f, -1.2f, -0.80f);
+    chevConfig.backLeftWheelOffset = glm::vec3(0.55f, -1.2f, -0.80f);
 
     gridSize = calculateOptimalGridSize(trackModel, gridHeight);
 
@@ -168,7 +168,7 @@ int main()
 
     soundManager.preloadSound("accelerate", "Sounds/accelerate_sound2.wav");
 
-    const unsigned int SHADOW_WIDTH = SCR_WIDTH, SHADOW_HEIGHT = SCR_HEIGHT;
+    const unsigned int SHADOW_WIDTH = 1000, SHADOW_HEIGHT = 1000;
     unsigned int depthMapFBO;
     glGenFramebuffers(1, &depthMapFBO);
     // create depth texture
@@ -208,8 +208,8 @@ int main()
         // -----
         processInput(window);
 
-        camera.FollowCar(car.getPosition(), car.getDirection(), car.getSpeed(), car.getMaxSpeed());
-
+        camera.FollowCar(car.getPosition(), car.getDirection(), car.getSpeed(), car.getMaxSpeed(), car.getSteeringAngle(), deltaTime);
+        camera.CarPosition = car.getPosition();
         // render
         // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -221,7 +221,7 @@ int main()
         
         //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
         lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-        lightView = glm::lookAt(car.getPosition(), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+        lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
         lightSpaceMatrix = lightProjection * lightView;
         // render scene from light's point of view
          depthShader.use();
@@ -342,6 +342,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     lastX = xpos;
     lastY = ypos;
 
+    // Check if the left mouse button is being held down
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         camera.ProcessMouseMovement(xoffset, yoffset);
     }

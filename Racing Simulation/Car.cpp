@@ -2,7 +2,8 @@
 
 const float SHARP_TURN_SPEED_THRESHOLD = 50.0f; // speed in km/h
 const float SHARP_TURN_ANGLE_THRESHOLD = 30.0f; // angle in degrees
-
+float currentPitch;
+float currentRoll;
 Car::Car(const CarConfig& config)
     : position(config.position),bodyOffset(config.bodyOffset),bodyScale(config.bodyScale), direction(config.direction), rotation(config.rotation),
     speed(config.speed), maxSpeed(config.maxSpeed), acceleration(config.acceleration), maxSteeringAngleAtMaxSpeed(config.maxSteeringAngleAtMaxSpeed),
@@ -42,16 +43,20 @@ void Car::updateModelMatrix() {
     bool sideCollision = collisionChecker.checkTrackIntersectionWithGrid(sideCollisionAABB);
 
     if (sideCollision) {
-        glm::vec3 correction = -direction * 0.3f;  // Increase correction step
+
+        glm::vec3 correctionDirection = (speed >= 0.0f) ? -direction : direction;
+
+        // Apply correction to position in the correct direction
+        glm::vec3 correction = correctionDirection * 0.3f;
         position += correction;
 
-        //bounce-back effect and reduce speed more aggressively
-        speed *= -0.5f;
+        // Halt the car's movement by setting speed to 0
+        speed *= 0.5f;
 
-    } else {
-
+    }
+    else {
+        // Proceed to the next position if no collision occurs
         position = nextPosition;
-
     }
 
     // Offsets for wheel rays (pointing downward)
@@ -88,12 +93,28 @@ void Car::updateModelMatrix() {
     // update car's y-position
     position.y = (frontLeftWheelIntersection.y + frontRightWheelIntersection.y + backLeftWheelIntersection.y + backRightWheelIntersection.y) / 4.0f + 1.5f;
 
+   
+
+    float pitchAngleTarget = glm::atan(-pitchHeightDifference / glm::length(midFront - midBack));
+    float rollAngleTarget = glm::atan(rollHeightDifference / glm::length(frontRightWheelIntersection - frontLeftWheelIntersection));
+
+    // Determine how fast the orientation should change based on speed
+    float lerpFactor = glm::mix(1.0f, 0.05f, glm::clamp(speed / maxSpeed, 0.0f, 1.0f));  // Fast orientation change when slow, slow when fast
+
+    
+    // Interpolate between current orientation and target orientation (pitch and roll)
+    currentPitch = glm::mix(currentPitch, pitchAngleTarget, lerpFactor);
+    currentRoll = glm::mix(currentRoll, rollAngleTarget, lerpFactor);
+
+    // Update car's y-position
+    position.y = (frontLeftWheelIntersection.y + frontRightWheelIntersection.y + backLeftWheelIntersection.y + backRightWheelIntersection.y) / 4.0f + 1.5f;
+
     // Update the model matrix
     modelMatrix = glm::mat4(1.0f);
     modelMatrix = glm::translate(modelMatrix, position);
     modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));  // Yaw (left and right)
-    modelMatrix = glm::rotate(modelMatrix, pitchAngle, glm::vec3(1.0f, 0.0f, 0.0f));  // Pitch (up/down)
-    modelMatrix = glm::rotate(modelMatrix, rollAngle, glm::vec3(0.0f, 0.0f, 1.0f));  // Roll (side-to-side)
+    modelMatrix = glm::rotate(modelMatrix, currentPitch, glm::vec3(1.0f, 0.0f, 0.0f));  // Pitch (up/down)
+    modelMatrix = glm::rotate(modelMatrix, currentRoll, glm::vec3(0.0f, 0.0f, 1.0f));  // Roll (side-to-side)
    
     // Update wheels' model matrices
     frontLeftWheel.updateModelMatrix(modelMatrix,wheelScale, true);
@@ -226,6 +247,12 @@ void Car::centerSteering(float deltaTime) {
     frontRightWheel.steeringAngle = glm::mix(frontRightWheel.steeringAngle, 0.0f, 2.0f * deltaTime);
 }
 
+float Car::getSteeringAngle() const {
+    // Assuming you have some logic to compute or retrieve the steering angle
+    // For example, if steering angle is simply the average of both front wheels:
+    return (frontLeftWheel.steeringAngle + frontRightWheel.steeringAngle) / 2.0f;
+}
+
 void Car::updatePositionAndDirection(float deltaTime) {
 
     // Update the car's direction based on the rotation (yaw)
@@ -249,9 +276,9 @@ void Car::updateWheelRotations(float deltaTime) {
 
     float rotationSpeed = speed * deltaTime * 360.0f;
 
-    backLeftWheel.rotation += rotationSpeed;
+    backLeftWheel.rotation -= rotationSpeed;
     backRightWheel.rotation += rotationSpeed;
-    frontLeftWheel.rotation += rotationSpeed;
+    frontLeftWheel.rotation -= rotationSpeed;
     frontRightWheel.rotation += rotationSpeed;
 
 }

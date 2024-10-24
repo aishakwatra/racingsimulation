@@ -8,6 +8,10 @@ public:
     Wheel(const glm::vec3& offsetPos, bool isLeftWheel = false);
     void updateModelMatrix(const glm::mat4& carModelMatrix, const glm::vec3 scale, bool isSteeringWheel);
     glm::mat4 getModelMatrix() const;
+    float getSteeringAngle()
+    {
+        return steeringAngle;
+    }
 
     void setRotation(float rotation);
     void setOffset(const glm::vec3& offset);

@@ -64,23 +64,39 @@ public:
             Position += Right * velocity;
     }
 
-    void FollowCar(glm::vec3 carPosition, glm::vec3 carDirection, float carSpeed, float maxSpeed, float minOffset = 8.0f, float maxOffset = 15.0f) {
-        if (isDragging) return;  // Do not adjust position while dragging
+    void FollowCar(glm::vec3 carPosition, glm::vec3 carDirection, float carSpeed, float maxSpeed, float steeringAngle, float deltaTime) {
+    if (isDragging) return;  // Do not adjust position while dragging
 
-        CarPosition = carPosition;  // Update car position for later use
+    // Set follow distance directly without lerping
+    float followDistance = glm::mix(5.0f, 10.0f, glm::clamp(carSpeed / maxSpeed, 0.0f, 1.0f));  // Closer positioning
+    float baseCameraHeightOffset = 0.4f;  // Base height offset above the car
 
-        float dynamicOffsetZ = glm::mix(minOffset, maxOffset, glm::clamp(carSpeed / maxSpeed, 0.0f, 1.0f));
-        float cameraHeightOffset = 3.0f;
+    // Dynamically adjust the camera height offset based on the car's elevation
+    float dynamicCameraHeightOffset = carPosition.y + baseCameraHeightOffset;
 
-        Position = carPosition - carDirection * dynamicOffsetZ + glm::vec3(0.0f, cameraHeightOffset, 0.0f);
+    // Calculate the target position directly behind the car without lerping
+    glm::vec3 targetPosition = carPosition - carDirection * followDistance + glm::vec3(0.0f, dynamicCameraHeightOffset, 0.0f);
 
-        Front = glm::normalize(carPosition + glm::vec3(0.0f, 1.0f, 0.0f) - Position);
-        Right = glm::normalize(glm::cross(Front, WorldUp));
-        Up = glm::normalize(glm::cross(Right, Front));
-    }
+    // Calculate the side offset based on steering angle and apply lerping only to this component
+    glm::vec3 rightVector = glm::normalize(glm::cross(carDirection, glm::vec3(0.0f, 1.0f, 0.0f)));
+    float maxLateralOffset = 2.0f;  // Slightly reduce maximum side offset
+    float lateralOffset = (steeringAngle / 45.0f) * maxLateralOffset;
+
+    // Only the lateral offset is smoothed using lerp
+    glm::vec3 lateralPosition = targetPosition + rightVector * lateralOffset;
+    Position.x = glm::mix(Position.x, lateralPosition.x, deltaTime * cameraLerpSpeed);
+    Position.z = glm::mix(Position.z, lateralPosition.z, deltaTime * cameraLerpSpeed);
+    Position.y = targetPosition.y;  // Adjust height directly based on car's position
+
+    // Update camera vectors
+    Front = glm::normalize(CarPosition - Position);
+    Right = glm::normalize(glm::cross(Front, WorldUp));
+    Up = glm::normalize(glm::cross(Right, Front));
+
+}
 
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true) {
-        if (!isDragging) return;  // Only rotate camera if dragging is active
+        if (!isDragging) return;
 
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
@@ -92,22 +108,18 @@ public:
             Pitch = glm::clamp(Pitch, -89.0f, 89.0f);
         }
 
-        // Update the camera's position based on the latest yaw and pitch
         updateCameraPosition();
     }
 
+
     void updateCameraPosition() {
-        // Spherical to Cartesian coordinates conversion
         glm::vec3 offset;
         offset.x = OrbitRadius * cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         offset.y = OrbitRadius * sin(glm::radians(Pitch));
         offset.z = OrbitRadius * sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
         Position = CarPosition + offset;
 
-        // Re-calculate the Front vector
-        Front = glm::normalize(CarPosition - Position);
-        Right = glm::normalize(glm::cross(Front, WorldUp));
-        Up = glm::normalize(glm::cross(Right, Front));
+        updateCameraVectors();
     }
 
     void StartDragging() {
@@ -116,30 +128,18 @@ public:
 
     void StopDragging() {
         isDragging = false;
-        ResetToFollowCar();
-    }
-
-    void ResetToFollowCar() {
-        // Reset the camera to follow the car smoothly
-        FollowCar(CarPosition, glm::normalize(Position - CarPosition), 0, 1);  // Assuming carSpeed and maxSpeed are not critical here
+        updateCameraPosition(); // Ensure camera updates its position to follow the car when dragging stops
     }
 
     void ProcessMouseScroll(float yoffset) {
         OrbitRadius -= (float)yoffset;
         OrbitRadius = glm::clamp(OrbitRadius, OrbitMinRadius, OrbitMaxRadius);
-
-        updateCameraPosition();  // Update camera position based on new radius
+        updateCameraPosition();
     }
 
 private:
     void updateCameraVectors() {
-        // Calculate the front vector
-        glm::vec3 front;
-        front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        front.y = sin(glm::radians(Pitch));
-        front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-        Front = glm::normalize(front);
-        // Recalculate the Right and Up vector
+        Front = glm::normalize(CarPosition - Position);
         Right = glm::normalize(glm::cross(Front, WorldUp));
         Up = glm::normalize(glm::cross(Right, Front));
     }

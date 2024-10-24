@@ -11,7 +11,7 @@ struct CarConfig {
     float rotation = 0.0f;
     float speed = 0.0f;
     float maxSpeed = 80.0f;
-    float acceleration = 11.0f;
+    float acceleration = 5.0f;
     float brakingForce = 20.0f;
     glm::vec3 frontLeftWheelOffset = glm::vec3(-0.65f, -0.6f, 0.85f);
     glm::vec3 frontRightWheelOffset = glm::vec3(0.65f, -0.6f, 0.85f);
