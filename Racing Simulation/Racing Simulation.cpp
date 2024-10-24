@@ -51,8 +51,8 @@ glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
 
 //track divided into 15x15 grid with each block being 20x20 in size
-int gridWidth = 10;
-int gridHeight = 10; 
+int gridWidth = 8;
+int gridHeight = 8; 
 float gridSize = 0.0f; 
 
 CarConfig chevConfig;
@@ -62,6 +62,22 @@ std::vector<std::vector<Triangle>> gridCells;
 std::vector<std::vector<Triangle>> gridCellsCollision;
 
 SoundManager soundManager;
+
+
+glm::vec3 lightPositions[4] = {
+glm::vec3(10.0f, 10.0f, 10.0f),
+glm::vec3(-10.0f, 10.0f, 10.0f),
+glm::vec3(10.0f, 10.0f, -10.0f),
+glm::vec3(-10.0f, 10.0f, -10.0f)
+};
+
+glm::vec3 lightColors[4] = {
+    glm::vec3(300.0f, 300.0f, 300.0f),
+    glm::vec3(300.0f, 300.0f, 300.0f),
+    glm::vec3(300.0f, 300.0f, 300.0f),
+    glm::vec3(300.0f, 300.0f, 300.0f)
+};
+
 
 int main()
 {
@@ -115,6 +131,8 @@ int main()
     // ------------------------------------
     Shader ourShader("Shaders/model/model_loading.vs", "Shaders/model/model_loading.fs");
 
+    Shader pbrShader("Shaders/pbr.vs", "Shaders/pbr.fs");
+
     // load models
     // -----------
     Shader skyboxShader("Shaders/skybox/skybox.vs", "Shaders/skybox/skybox.fs");
@@ -133,12 +151,19 @@ int main()
 
    //Model carModel("Objects/jeep/car.obj");
    //Model wheelModel("Objects/jeep/wheel.obj");
-   Model carModel("Objects/chev-nascar/body.obj");
+   //Model carModel("Objects/chev-nascar/body.obj");
    Model wheelModel("Objects/chev-nascar/wheel1.obj");
-
+   Model carModel("Objects/pbrCar/CarBody2.obj");
    ourShader.use();
    ourShader.setInt("material.diffuse", 0);
    ourShader.setInt("material.specular", 1);
+
+   pbrShader.use();
+   pbrShader.setInt("albedoMap", 0);
+   pbrShader.setInt("normalMap", 1);
+   pbrShader.setInt("metallicMap", 2);
+   pbrShader.setInt("roughnessMap", 3);
+   pbrShader.setInt("aoMap", 4);
 
     chevConfig.position = glm::vec3(0.0f, 0.0f, 0.0f);
     chevConfig.bodyOffset = glm::vec3(0.0f, -1.0f, 0.0f);
@@ -184,55 +209,49 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-        ourShader.setFloat("material.shininess", 50.0f);
-        // directional light
-        ourShader.setVec3("dirLight.direction", -0.5f, -1.0f, -0.5f);
-        ourShader.setVec3("dirLight.ambient", 0.4f, 0.4f, 0.4f);
-        ourShader.setVec3("dirLight.diffuse", 0.8f, 0.8f, 0.8f);
-        ourShader.setVec3("dirLight.specular", 0.6f, 0.6f, 0.6f);
-        ourShader.use();
+        pbrShader.use();
+        pbrShader.setInt("albedoMap", 0);
+        pbrShader.setInt("normalMap", 1);
+        pbrShader.setInt("metallicMap", 2);
+        pbrShader.setInt("roughnessMap", 3);
+        pbrShader.setInt("aoMap", 4);
 
-        // spotLight
-        ourShader.setVec3("spotLight.position", car.getPosition());
-        ourShader.setVec3("spotLight.direction", car.getDirection());
-        ourShader.setVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
-        ourShader.setVec3("spotLight.diffuse", 1.0f, 1.0f, 1.0f);
-        ourShader.setVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
-        ourShader.setFloat("spotLight.constant", 1.0f);
-        ourShader.setFloat("spotLight.linear", 0.09f);
-        ourShader.setFloat("spotLight.quadratic", 0.032f);
-        ourShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-        ourShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
 
+        for (int i = 0; i < 4; ++i) {
+            pbrShader.setVec3("lightPositions[" + std::to_string(i) + "]", lightPositions[i]);
+            pbrShader.setVec3("lightColors[" + std::to_string(i) + "]", lightColors[i]);
+        }
+
+        pbrShader.setVec3("camPos", camera.Position);
+        
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 200.0f);
         glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
-
+        pbrShader.setMat4("projection", projection);
+        pbrShader.setMat4("view", view);
 
         //track
         glm::mat4 model = glm::mat4(1.0f);
-        ourShader.setMat4("model", model);
-        trackModel.Draw(ourShader);
+        pbrShader.setMat4("model", model);
+        trackModel.Draw(pbrShader);
 
         //car body
         car.updatePositionAndDirection(deltaTime);
         car.updateModelMatrix();  // Update the car and wheel transformations
-        ourShader.setMat4("model", car.getModelMatrix());
-        carModel.Draw(ourShader);
+        pbrShader.setMat4("model", car.getModelMatrix());
+        carModel.Draw(pbrShader);
 
-        ourShader.setMat4("model", car.getFrontLeftWheelModelMatrix());
-        wheelModel.Draw(ourShader);
+        pbrShader.setMat4("model", car.getFrontLeftWheelModelMatrix());
+        wheelModel.Draw(pbrShader);
 
-        ourShader.setMat4("model", car.getFrontRightWheelModelMatrix());
-        wheelModel.Draw(ourShader);
+        pbrShader.setMat4("model", car.getFrontRightWheelModelMatrix());
+        wheelModel.Draw(pbrShader);
 
-        ourShader.setMat4("model", car.getBackLeftWheelModelMatrix());
-        wheelModel.Draw(ourShader);
+        pbrShader.setMat4("model", car.getBackLeftWheelModelMatrix());
+        wheelModel.Draw(pbrShader);
 
-        ourShader.setMat4("model", car.getBackRightWheelModelMatrix());
-        wheelModel.Draw(ourShader);
+        pbrShader.setMat4("model", car.getBackRightWheelModelMatrix());
+        wheelModel.Draw(pbrShader);
 
         skybox.draw(view, projection);
 
@@ -418,7 +437,7 @@ void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidt
         }
     }
 
-    printGridCells();
+    //printGridCells();
 
 }
 

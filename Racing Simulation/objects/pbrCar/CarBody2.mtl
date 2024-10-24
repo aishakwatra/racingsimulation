@@ -1,0 +1,15 @@
+# Blender 3.3.1 MTL File: 'None'
+# www.blender.org
+
+newmtl Body
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd Body_Base_Color.png
+map_Ns Body_Roughness.png
+map_refl Body_Metallic.png
+map_Bump -bm 1.000000 Body_Normal_OpenGL.png
+

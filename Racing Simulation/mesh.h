@@ -57,44 +57,74 @@ public:
     }
 
     // render the mesh
-    void Draw(Shader& shader)
-    {
-         unsigned int diffuseNr = 1;
-        unsigned int specularNr = 1;
-        unsigned int normalNr = 1;
-        unsigned int heightNr = 1;
+    //void Draw(Shader& shader)
+    //{
+    //    unsigned int diffuseNr = 1;
+    //    unsigned int specularNr = 1;
+    //    unsigned int normalNr = 1;
+    //    unsigned int heightNr = 1;
+
+    //    for (unsigned int i = 0; i < textures.size(); i++) {
+    //        glActiveTexture(GL_TEXTURE0 + i); // Activate proper texture unit before binding
+    //        stringstream ss;
+    //        string number;
+    //        string name = textures[i].type;
+
+    //        if (name == "texture_diffuse") {
+    //            ss << diffuseNr++; // Transfer unsigned int to stream
+    //        }
+    //        else if (name == "texture_specular") {
+    //            ss << specularNr++; // Transfer unsigned int to stream
+    //        }
+    //        else if (name == "texture_normal") {
+    //            ss << normalNr++; // Transfer unsigned int to stream
+    //        }
+    //        else if (name == "texture_height") {
+    //            ss << heightNr++; // Transfer unsigned int to stream
+    //        }
+    //        number = ss.str();
+    //        shader.setInt(name + number, i);
+    //        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+    //}
+
+    //// Draw mesh
+    //glBindVertexArray(VAO);
+    //glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
+    //glBindVertexArray(0);
+
+    //// Always good practice to set everything back to defaults once configured.
+    //glActiveTexture(GL_TEXTURE0);
+    //}
+
+    void Draw(Shader& shader) {
+        unsigned int albedoNr = 1, normalNr = 1, metallicNr = 1, roughnessNr = 1, aoNr = 1;
 
         for (unsigned int i = 0; i < textures.size(); i++) {
-            glActiveTexture(GL_TEXTURE0 + i); // Activate proper texture unit before binding
-            stringstream ss;
-            string number;
+            glActiveTexture(GL_TEXTURE0 + i);
             string name = textures[i].type;
+            string number;
 
-            if (name == "texture_diffuse") {
-                ss << diffuseNr++; // Transfer unsigned int to stream
-            }
-            else if (name == "texture_specular") {
-                ss << specularNr++; // Transfer unsigned int to stream
-            }
-            else if (name == "texture_normal") {
-                ss << normalNr++; // Transfer unsigned int to stream
-            }
-            else if (name == "texture_height") {
-                ss << heightNr++; // Transfer unsigned int to stream
-            }
-            number = ss.str();
+            if (name == "texture_albedo")
+                number = std::to_string(albedoNr++);
+            else if (name == "texture_normal")
+                number = std::to_string(normalNr++);
+            else if (name == "texture_metallic")
+                number = std::to_string(metallicNr++);
+            else if (name == "texture_roughness")
+                number = std::to_string(roughnessNr++);
+            else if (name == "texture_ao")
+                number = std::to_string(aoNr++);
+
             shader.setInt(name + number, i);
             glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        }
+
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+        glActiveTexture(GL_TEXTURE0);
     }
 
-    // Draw mesh
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-
-    // Always good practice to set everything back to defaults once configured.
-    glActiveTexture(GL_TEXTURE0);
-    }
 
 private:
     // render data 

@@ -153,6 +153,8 @@
   <ItemGroup>
     <None Include="Shaders\model\model_loading.fs" />
     <None Include="Shaders\model\model_loading.vs" />
+    <None Include="Shaders\pbr.fs" />
+    <None Include="Shaders\pbr.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
