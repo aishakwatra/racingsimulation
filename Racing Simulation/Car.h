@@ -14,7 +14,7 @@ public:
     explicit Car(const CarConfig& config);
     void applyConfig(const CarConfig& config);
 
-    void updateModelMatrix();
+    void updateModelMatrix(float deltaTime);
     glm::mat4 getModelMatrix() const;
 
     // Accessors for wheels' matrices

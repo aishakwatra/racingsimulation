@@ -278,7 +278,7 @@ void renderScene(Shader& shader)
 
     //car body
     car.updatePositionAndDirection(deltaTime);
-    car.updateModelMatrix();  // Update the car and wheel transformations
+    car.updateModelMatrix(deltaTime);  // Update the car and wheel transformations
     shader.setMat4("model", car.getModelMatrix());
     carModel->Draw(shader);
 
