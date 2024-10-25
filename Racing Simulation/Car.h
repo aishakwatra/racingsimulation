@@ -51,6 +51,7 @@ private:
     glm::vec3 bodyScale;
     glm::vec3 wheelScale;
 
+    float carWeight;
     float rotation;
     float speed;
     float maxSpeed;

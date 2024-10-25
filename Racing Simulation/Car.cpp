@@ -4,14 +4,23 @@ const float SHARP_TURN_SPEED_THRESHOLD = 50.0f; // speed in km/h
 const float SHARP_TURN_ANGLE_THRESHOLD = 30.0f; // angle in degrees
 float currentPitch;
 float currentRoll;
+
+bool isAirborne = false;
+float verticalVelocity = 0.0f;
+float forwardVelocity = 0.0f;  // Forward velocity for jumping
+const float baseGravity = 9.8f;
+const float jumpThresholdSpeed = 5.0f;
+const float pitchJumpThreshold = 0.1f;
+float verticalVelocityFactor = 0.1f;
+
 Car::Car(const CarConfig& config)
-    : position(config.position),bodyOffset(config.bodyOffset),bodyScale(config.bodyScale), direction(config.direction), rotation(config.rotation),
+    : position(config.position), bodyOffset(config.bodyOffset), bodyScale(config.bodyScale), direction(config.direction), rotation(config.rotation),
     speed(config.speed), maxSpeed(config.maxSpeed), acceleration(config.acceleration), maxSteeringAngleAtMaxSpeed(config.maxSteeringAngleAtMaxSpeed),
     maxSteeringAngleAtZeroSpeed(config.maxSteeringAngleAtZeroSpeed), turnSharpnessFactor(config.turnSharpnessFactor),
-    brakingForce(config.brakingForce), wheelScale(config.wheelScale), frontLeftWheel(config.frontLeftWheelOffset ,true),
-    frontRightWheel(config.frontRightWheelOffset ), backLeftWheel(config.backLeftWheelOffset ,true),
-    backRightWheel(config.backRightWheelOffset ),
-    modelMatrix(glm::mat4(1.0f)) {}
+    brakingForce(config.brakingForce), wheelScale(config.wheelScale), frontLeftWheel(config.frontLeftWheelOffset, true),
+    frontRightWheel(config.frontRightWheelOffset), backLeftWheel(config.backLeftWheelOffset, true),
+    backRightWheel(config.backRightWheelOffset), carWeight(config.carWeight), modelMatrix(glm::mat4(1.0f)) {}
+
 
 void Car::applyConfig(const CarConfig& config) {
     position = config.position;
@@ -37,13 +46,6 @@ void Car::setCollisionGrid(const std::vector<std::vector<Triangle>>& gridCells,c
 }
 
 
-// Additional variables for jump handling
-bool isAirborne = false;
-float verticalVelocity = 0.0f;
-const float gravity = 9.8f;
-const float jumpThresholdSpeed = 5.0f;  // Lower this to make it easier to jump at lower speeds (was 30.0f)
-const float pitchJumpThreshold = 0.1f;   // Lower this to make it more sensitive to slight ramps (was 0.2f)
-float verticalVelocityFactor = 0.1f;     // Increase this to make the car jump higher (was 0.2f)
 
 
 void Car::updateModelMatrix(float deltaTime) {
@@ -55,10 +57,10 @@ void Car::updateModelMatrix(float deltaTime) {
         glm::vec3 correctionDirection = (speed >= 0.0f) ? -direction : direction;
         glm::vec3 correction = correctionDirection * 0.3f;
         position += correction;
-        speed *= 0.5f; // Reduce speed due to collision
+        speed *= 0.5f;
     }
     else {
-        position = nextPosition; // Move to the next position if no collision occurs
+        position = nextPosition;
     }
 
     // Offsets for wheel rays (pointing downward)
@@ -74,78 +76,64 @@ void Car::updateModelMatrix(float deltaTime) {
     backLeftWheelRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backLeftWheelOffset, 1.0f));
     backRightWheelRayOrigin = position + glm::vec3(rotationMatrix * glm::vec4(backRightWheelOffset, 1.0f));
 
-    // Find wheel collisions
     bool frontLeftCollision = collisionChecker.checkTrackIntersectionWithGrid(frontLeftWheelRayOrigin, downwardRayDirection, frontLeftWheelIntersection);
     bool frontRightCollision = collisionChecker.checkTrackIntersectionWithGrid(frontRightWheelRayOrigin, downwardRayDirection, frontRightWheelIntersection);
     bool backLeftCollision = collisionChecker.checkTrackIntersectionWithGrid(backLeftWheelRayOrigin, downwardRayDirection, backLeftWheelIntersection);
     bool backRightCollision = collisionChecker.checkTrackIntersectionWithGrid(backRightWheelRayOrigin, downwardRayDirection, backRightWheelIntersection);
 
-    // Check if the car is airborne (wheels not touching the ground)
     bool wheelsTouchingGround = frontLeftCollision || frontRightCollision || backLeftCollision || backRightCollision;
     if (!wheelsTouchingGround && !isAirborne) {
-        // If the car leaves the ground, trigger airborne state
         isAirborne = true;
-        verticalVelocity = speed * verticalVelocityFactor;  // Give some initial upward velocity based on speed
+        verticalVelocity = (speed * verticalVelocityFactor) / (carWeight / 1000.0f);  // Lower initial upward velocity for heavier cars
     }
 
-    // Compute the pitch and roll for ground orientation
     glm::vec3 midFront = (frontLeftWheelIntersection + frontRightWheelIntersection) / 2.0f;
     glm::vec3 midBack = (backLeftWheelIntersection + backRightWheelIntersection) / 2.0f;
 
     float rollHeightDifference = ((frontRightWheelIntersection.y + backRightWheelIntersection.y) / 2.0f) - ((frontLeftWheelIntersection.y + backLeftWheelIntersection.y) / 2.0f);
     float pitchHeightDifference = ((frontLeftWheelIntersection.y + frontRightWheelIntersection.y) / 2.0f) - ((backLeftWheelIntersection.y + backRightWheelIntersection.y) / 2.0f);
 
-    // Compute pitch and roll
     float pitchAngleTarget = glm::atan(-pitchHeightDifference / glm::length(midFront - midBack));
     float rollAngleTarget = glm::atan(rollHeightDifference / glm::length(frontRightWheelIntersection - frontLeftWheelIntersection));
 
-    // Responsive adjustment based on speed
-    float orientationLerpFactor = glm::mix(0.2f, 0.05f, glm::clamp(speed / maxSpeed, 0.0f, 1.0f));  // Slower interpolation when fast
+    float orientationLerpFactor = glm::mix(0.2f, 0.05f, glm::clamp(speed / maxSpeed, 0.0f, 1.0f));
     currentPitch = glm::mix(currentPitch, pitchAngleTarget, orientationLerpFactor);
     currentRoll = glm::mix(currentRoll, rollAngleTarget, orientationLerpFactor);
 
-    // Compute the target y-position of the car on the ground
     float targetY = (frontLeftWheelIntersection.y + frontRightWheelIntersection.y + backLeftWheelIntersection.y + backRightWheelIntersection.y) / 4.0f + 1.5f;
 
-    // Handle jumping and gravity
     if (isAirborne) {
-        // Apply gravity and adjust vertical position while airborne
-        verticalVelocity -= gravity * deltaTime;
+        float adjustedGravity = baseGravity * (carWeight / 1000.0f);  // Heavier cars fall faster
+        verticalVelocity -= adjustedGravity * deltaTime;
         position.y += verticalVelocity * deltaTime;
 
-        // Check if the car has landed (i.e., below or at ground level)
         if (position.y <= targetY) {
-            position.y = targetY;  // Snap to ground
-            isAirborne = false;    // Reset airborne state
-            verticalVelocity = 0.0f;  // Reset vertical velocity on landing
+            position.y = targetY;
+            isAirborne = false;
+            verticalVelocity = 0.0f;
         }
     }
     else {
-        // If the car is on the ground, interpolate the y-position based on speed
-        float yLerpFactor = glm::mix(0.5f, 0.3f, glm::clamp(speed / maxSpeed, 0.0f, 1.0f));  // Faster y-lerp when slower
+        float yLerpFactor = glm::mix(0.5f, 0.3f, glm::clamp(speed / maxSpeed, 0.0f, 1.0f));
         position.y = glm::mix(position.y, targetY, yLerpFactor);
 
-        // Detect if the car should "jump" when going too fast up a ramp
-        if (speed > jumpThresholdSpeed && pitchAngleTarget > pitchJumpThreshold) {  // Adjust the pitch threshold based on ramp steepness
+        if (speed > jumpThresholdSpeed && pitchAngleTarget > pitchJumpThreshold) {
             isAirborne = true;
-            verticalVelocity = speed * verticalVelocityFactor;  // Launch the car with a higher upward velocity based on speed
+            verticalVelocity = (speed * verticalVelocityFactor) / (carWeight / 1000.0f);  // Heavier cars launch with less velocity
         }
     }
 
-    // Update the model matrix
     modelMatrix = glm::mat4(1.0f);
     modelMatrix = glm::translate(modelMatrix, position);
-    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));  // Yaw (left and right)
-    modelMatrix = glm::rotate(modelMatrix, currentPitch, glm::vec3(1.0f, 0.0f, 0.0f));  // Pitch (up/down)
-    modelMatrix = glm::rotate(modelMatrix, currentRoll, glm::vec3(0.0f, 0.0f, 1.0f));  // Roll (side-to-side)
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+    modelMatrix = glm::rotate(modelMatrix, currentPitch, glm::vec3(1.0f, 0.0f, 0.0f));
+    modelMatrix = glm::rotate(modelMatrix, currentRoll, glm::vec3(0.0f, 0.0f, 1.0f));
 
-    // Update wheels' model matrices
     frontLeftWheel.updateModelMatrix(modelMatrix, wheelScale, true);
     frontRightWheel.updateModelMatrix(modelMatrix, wheelScale, true);
     backLeftWheel.updateModelMatrix(modelMatrix, wheelScale, false);
     backRightWheel.updateModelMatrix(modelMatrix, wheelScale, false);
 }
-
 
 
 glm::mat4 Car::getModelMatrix() const {
@@ -194,14 +182,14 @@ float Car::getMaxSpeed() const {
 }
 
 void Car::accelerate(float deltaTime) {
-
-       speed += acceleration * deltaTime;
+    if (!isAirborne) {  // Only allow acceleration if the car is on the ground
+        speed += acceleration * deltaTime;
         if (speed > maxSpeed) {
             speed = maxSpeed;
         }
-    
-
+    }
 }
+
 
 void Car::brake(float deltaTime) {
 
