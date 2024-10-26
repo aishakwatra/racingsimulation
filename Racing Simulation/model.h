@@ -31,11 +31,16 @@ public:
     vector<Mesh>    meshes;
     string directory;
     bool gammaCorrection;
+    glm::vec3 startPosition;
 
     // constructor, expects a filepath to a 3D model.
     Model(string const& path, bool gamma = false) : gammaCorrection(gamma)
     {
         loadModel(path);
+    }
+
+    glm::vec3 getStartPosition() const {
+        return startPosition;
     }
 
     // draws the model, and thus all its meshes

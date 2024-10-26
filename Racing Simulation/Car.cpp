@@ -31,6 +31,7 @@ void Car::applyConfig(const CarConfig& config) {
     rotation = config.rotation;
     speed = config.speed;
     maxSpeed = config.maxSpeed;
+    carWeight = config.carWeight;
     acceleration = config.acceleration;
     brakingForce = config.brakingForce;
     maxSteeringAngleAtMaxSpeed = config.maxSteeringAngleAtMaxSpeed;
@@ -40,13 +41,47 @@ void Car::applyConfig(const CarConfig& config) {
     frontRightWheel.setOffset(config.frontRightWheelOffset);
     backLeftWheel.setOffset(config.backLeftWheelOffset);
     backRightWheel.setOffset(config.backRightWheelOffset);
+
+    initializeModelMatrix();
+    
+}
+
+void Car::activate() {
+    active = true;
+}
+
+void Car::deactivate() {
+    active = false;
+}
+
+bool Car::isActive() const {
+	return active;
 }
 void Car::setCollisionGrid(const std::vector<std::vector<Triangle>>& gridCells,const std::vector<std::vector<Triangle>>& gridCellsCollision, float gridSize, int gridWidth, int gridHeight) {
     collisionChecker.setGrid(gridCells, gridCellsCollision, gridSize, gridWidth, gridHeight);
 }
 
+void Car::update(float deltaTime) {
+    if (!active) return;
 
+    updatePositionAndDirection(deltaTime);
+    updateModelMatrix(deltaTime);
+    updateWheelRotations(deltaTime);
+    
+}
 
+void Car::initializeModelMatrix() {
+    modelMatrix = glm::mat4(1.0f);
+    modelMatrix = glm::translate(modelMatrix, position);
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+    modelMatrix = glm::scale(modelMatrix, bodyScale);  // Ensure the car's body scale is applied
+
+    frontLeftWheel.updateModelMatrix(modelMatrix, wheelScale, true);
+    frontRightWheel.updateModelMatrix(modelMatrix, wheelScale, true);
+    backLeftWheel.updateModelMatrix(modelMatrix, wheelScale, false);
+    backRightWheel.updateModelMatrix(modelMatrix, wheelScale, false);
+    
+}
 
 void Car::updateModelMatrix(float deltaTime) {
     sideCollisionAABB.update(modelMatrix);

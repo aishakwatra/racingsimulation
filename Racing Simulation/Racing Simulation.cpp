@@ -60,7 +60,10 @@ int gridHeight = 10;
 float gridSize = 0.0f; 
 
 CarConfig chevConfig;
-Car car(chevConfig);
+CarConfig jeepConfig;
+Car chev(chevConfig);
+Car jeep(jeepConfig);
+Car* selectedCar = &chev;
 
 std::vector<std::vector<Triangle>> gridCells;
 std::vector<std::vector<Triangle>> gridCellsCollision;
@@ -68,11 +71,11 @@ std::vector<std::vector<Triangle>> gridCellsCollision;
 Model* trackVisual;
 Model* carModel;
 Model* wheelModel;
-//Model carModel("Objects/jeep/car.obj");
-//Model wheelModel("Objects/jeep/wheel.obj");
-
+Model* car2Model;
+Model* wheel2Model;
 
 SoundManager soundManager;
+
 
 int main()
 {
@@ -146,26 +149,45 @@ int main()
     trackVisual = new Model("Objects/racetrack/track3.obj");
     carModel = new Model("Objects/chev-nascar/body.obj");
     wheelModel = new Model("Objects/chev-nascar/wheel1.obj");
+    car2Model = new Model("Objects/jeep/car.obj");
+    wheel2Model = new Model("Objects/jeep/wheel.obj");
 
-    chevConfig.position = glm::vec3(0.0f, 0.0f, 0.0f);
+    chevConfig.position = glm::vec3(-2.5f, 0.0f, -1.0f);
     chevConfig.bodyOffset = glm::vec3(0.0f, -1.5f, 0.0f);
     chevConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
     chevConfig.wheelScale = glm::vec3(0.5f, 0.5f, 0.5f);
-    chevConfig.maxSpeed = 40.0f;
-    chevConfig.acceleration = 5.0f;
-    chevConfig.brakingForce = 20.0f;
+    chevConfig.carWeight = 900.0f;
+    chevConfig.maxSpeed = 100.0f;
+    chevConfig.acceleration = 20.0f;
+    chevConfig.brakingForce = 30.0f;
     chevConfig.frontRightWheelOffset = glm::vec3(-0.55f, -1.2f, 1.10f);
     chevConfig.frontLeftWheelOffset = glm::vec3(0.55f, -1.2f, 1.10f);
     chevConfig.backRightWheelOffset = glm::vec3(-0.55f, -1.2f, -0.80f);
     chevConfig.backLeftWheelOffset = glm::vec3(0.55f, -1.2f, -0.80f);
 
+    jeepConfig.position = glm::vec3(2.5f, 1.0f,-1.0f);
+    jeepConfig.bodyOffset = glm::vec3(0.0f, 0.0f, 0.0f);
+    jeepConfig.bodyScale = glm::vec3(1.0f, 1.0f, 1.0f);
+    jeepConfig.wheelScale = glm::vec3(1.5f, 1.5f, 1.5f);
+    chevConfig.carWeight = 2000.0f;
+    jeepConfig.maxSpeed = 100.0f;
+    jeepConfig.acceleration = 10.0f;
+    jeepConfig.brakingForce = 30.0f;
+    jeepConfig.frontRightWheelOffset = glm::vec3(-0.55f, -1.2f, 1.10f);
+    jeepConfig.frontLeftWheelOffset = glm::vec3(0.55f, -1.2f, 1.10f);
+    jeepConfig.backRightWheelOffset = glm::vec3(-0.55f, -1.2f, -0.80f);
+    jeepConfig.backLeftWheelOffset = glm::vec3(0.55f, -1.2f, -0.80f);
+
     gridSize = calculateOptimalGridSize(trackModel, gridHeight);
 
-    car.applyConfig(chevConfig);
+    chev.applyConfig(chevConfig);
+    jeep.applyConfig(jeepConfig);
+
+
     assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCells);
     assignTrianglesToGrid(trackCollisionModel, gridSize, gridWidth, gridHeight, gridCellsCollision);
-    car.setCollisionGrid(gridCells,gridCellsCollision, gridSize, gridWidth, gridHeight);
-
+    chev.setCollisionGrid(gridCells,gridCellsCollision, gridSize, gridWidth, gridHeight);
+    jeep.setCollisionGrid(gridCells, gridCellsCollision, gridSize, gridWidth, gridHeight);
     soundManager.preloadSound("accelerate", "Sounds/accelerate_sound2.wav");
 
     const unsigned int SHADOW_WIDTH = 1000, SHADOW_HEIGHT = 1000;
@@ -208,8 +230,9 @@ int main()
         // -----
         processInput(window);
 
-        camera.FollowCar(car.getPosition(), car.getDirection(), car.getSpeed(), car.getMaxSpeed(), car.getSteeringAngle(), deltaTime);
-        camera.CarPosition = car.getPosition();
+       
+        camera.FollowCar(selectedCar->getPosition(), selectedCar->getDirection(), selectedCar->getSpeed(), selectedCar->getMaxSpeed(), selectedCar->getSteeringAngle(), deltaTime);
+        camera.CarPosition = selectedCar->getPosition();
         // render
         // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -224,7 +247,7 @@ int main()
         lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
         lightSpaceMatrix = lightProjection * lightView;
         // render scene from light's point of view
-         depthShader.use();
+        depthShader.use();
         depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
@@ -248,11 +271,14 @@ int main()
         ourShader.setVec3("lightPosition", lightPos);
         renderScene(ourShader);
 
-       
+        if (selectedCar && selectedCar->isActive()) {
+            selectedCar->update(deltaTime);
+        }
 
         skybox.draw(view, projection);
 
-        handleCarSound(soundManager, car);
+        handleCarSound(soundManager, chev);
+        handleCarSound(soundManager, jeep);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -276,24 +302,42 @@ void renderScene(Shader& shader)
     shader.setMat4("model", model);
     trackVisual->Draw(shader);
 
-    //car body
-    car.updatePositionAndDirection(deltaTime);
-    car.updateModelMatrix(deltaTime);  // Update the car and wheel transformations
-    shader.setMat4("model", car.getModelMatrix());
+    // Draw the car body
+    shader.setMat4("model", chev.getModelMatrix());
     carModel->Draw(shader);
 
-    shader.setMat4("model", car.getFrontLeftWheelModelMatrix());
+    // Draw the wheels
+    shader.setMat4("model", chev.getFrontLeftWheelModelMatrix());
     wheelModel->Draw(shader);
 
-    shader.setMat4("model", car.getFrontRightWheelModelMatrix());
+    shader.setMat4("model", chev.getFrontRightWheelModelMatrix());
     wheelModel->Draw(shader);
 
-    shader.setMat4("model", car.getBackLeftWheelModelMatrix());
+    shader.setMat4("model", chev.getBackLeftWheelModelMatrix());
     wheelModel->Draw(shader);
 
-    shader.setMat4("model", car.getBackRightWheelModelMatrix());
+    shader.setMat4("model", chev.getBackRightWheelModelMatrix());
     wheelModel->Draw(shader);
+
+    // Draw the car body
+    shader.setMat4("model", jeep.getModelMatrix());
+    car2Model->Draw(shader);
+
+    // Draw the wheels
+    shader.setMat4("model", jeep.getFrontLeftWheelModelMatrix());
+    wheel2Model->Draw(shader);
+
+    shader.setMat4("model", jeep.getFrontRightWheelModelMatrix());
+    wheel2Model->Draw(shader);
+
+    shader.setMat4("model", jeep.getBackLeftWheelModelMatrix());
+    wheel2Model->Draw(shader);
+
+    shader.setMat4("model", jeep.getBackRightWheelModelMatrix());
+    wheel2Model->Draw(shader);
+
 }
+
 
 
 void processInput(GLFWwindow* window)
@@ -301,36 +345,49 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        car.accelerate(deltaTime);
+    // Check for car selection
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+        if (selectedCar != &chev) {
+            if (selectedCar) selectedCar->deactivate();
+            selectedCar = &chev;
+            selectedCar->activate();
+        }
+    }
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+        if (selectedCar != &jeep) {
+            if (selectedCar) selectedCar->deactivate();
+            selectedCar = &jeep;
+            selectedCar->activate();
+        }
     }
 
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        car.brake(deltaTime);
+    // Acceleration and braking
+    if (selectedCar && selectedCar->isActive()) {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            selectedCar->accelerate(deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            selectedCar->brake(deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE) {
+            selectedCar->slowDown(deltaTime);
+        }
+
+        // Steering
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            selectedCar->steerLeft(deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            selectedCar->steerRight(deltaTime);
+        }
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE) {
+            selectedCar->centerSteering(deltaTime);
+        }
+
+        // Update car position and direction
+        selectedCar->updatePositionAndDirection(deltaTime);
+        selectedCar->updateWheelRotations(deltaTime);
     }
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_S) == GLFW_RELEASE) {
-        car.slowDown(deltaTime);
-    }
-
-    // Handle steering
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        car.steerLeft(deltaTime);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        car.steerRight(deltaTime);
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE) {
-        car.centerSteering(deltaTime);
-    }
-
-    car.updatePositionAndDirection(deltaTime);
-
-    car.updateWheelRotations(deltaTime);
-
 }
 
 
@@ -493,11 +550,7 @@ void checkTrackSize(const Model& trackModel) {
 
     std::cout << "Minimum X: " << minX << "Maximum Y" << maxX << std::endl;
 
-
 }
-
-
-
 
 void handleCarSound(SoundManager& soundManager, const Car& car) {
     static float fadeOutVolume = 1.0f;

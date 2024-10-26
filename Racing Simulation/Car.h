@@ -13,15 +13,21 @@ class Car {
 public:
     explicit Car(const CarConfig& config);
     void applyConfig(const CarConfig& config);
+    void activate();  // Activate car for updates and physics
+    void deactivate();  // Deactivate car to stop updates and physics
 
+    void update(float deltaTime);
     void updateModelMatrix(float deltaTime);
     glm::mat4 getModelMatrix() const;
+    void initializeModelMatrix();
 
     // Accessors for wheels' matrices
     glm::mat4 getFrontLeftWheelModelMatrix() const;
     glm::mat4 getFrontRightWheelModelMatrix() const;
     glm::mat4 getBackLeftWheelModelMatrix() const;
     glm::mat4 getBackRightWheelModelMatrix() const;
+
+    bool isActive() const;
 
     // Movement and steering methods
     void accelerate(float deltaTime);
@@ -36,6 +42,9 @@ public:
     float getSteeringAngle() const;
     void setCollisionGrid(const std::vector<std::vector<Triangle>>& gridCells,const std::vector<std::vector<Triangle>>& gridCellsCollision, float gridSize, int gridWidth, int gridHeight);
 
+
+    void rotateForSelection(float deltaTime);
+
     // Getters for position, direction, speed, and other properties
     glm::vec3 getPosition() const;
     glm::vec3 getDirection() const;
@@ -45,6 +54,7 @@ public:
 
 
 private:
+    bool active = true;
     glm::vec3 position;
     glm::vec3 bodyOffset;
     glm::vec3 direction;
