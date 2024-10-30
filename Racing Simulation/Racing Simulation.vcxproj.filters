@@ -24,7 +24,13 @@
   <ItemGroup>
     <None Include="Shaders\model\model_loading.fs" />
     <None Include="Shaders\model\model_loading.vs" />
-    <None Include="Shaders\pbr.fs" />
-    <None Include="Shaders\pbr.vs" />
+    <None Include="Shaders\PBR\pbr.fs" />
+    <None Include="Shaders\PBR\pbr.vs" />
+    <None Include="Shaders\PBR\irradiance_convolution.fs" />
+    <None Include="Shaders\PBR\prefilter.fs" />
+    <None Include="Shaders\PBR\brdf.vs" />
+    <None Include="Shaders\PBR\brdf.fs" />
+    <None Include="Shaders\PBR\equirectangular_to_cubemap.fs" />
+    <None Include="Shaders\PBR\cubemap.vs" />
   </ItemGroup>
 </Project>

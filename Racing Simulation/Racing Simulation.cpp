@@ -52,8 +52,8 @@ glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
 //track divided into 15x15 grid with each block being 20x20 in size
 int gridWidth = 8;
-int gridHeight = 8; 
-float gridSize = 0.0f; 
+int gridHeight = 8;
+float gridSize = 0.0f;
 
 CarConfig chevConfig;
 Car car(chevConfig);
@@ -65,17 +65,17 @@ SoundManager soundManager;
 
 
 glm::vec3 lightPositions[4] = {
-glm::vec3(10.0f, 10.0f, 10.0f),
-glm::vec3(-10.0f, 10.0f, 10.0f),
-glm::vec3(10.0f, 10.0f, -10.0f),
-glm::vec3(-10.0f, 10.0f, -10.0f)
+glm::vec3(10.0f, 5.0f, 10.0f),
+glm::vec3(-10.0f, 5.0f, 10.0f),
+glm::vec3(10.0f, 5.0f, -10.0f),
+glm::vec3(-10.0f, 5.0f, -10.0f)
 };
 
 glm::vec3 lightColors[4] = {
-    glm::vec3(300.0f, 300.0f, 300.0f),
-    glm::vec3(300.0f, 300.0f, 300.0f),
-    glm::vec3(300.0f, 300.0f, 300.0f),
-    glm::vec3(300.0f, 300.0f, 300.0f)
+    glm::vec3(500.0f, 500.0f, 500.0f),
+    glm::vec3(500.0f, 500.0f, 500.0f),
+    glm::vec3(500.0f, 500.0f, 500.0f),
+    glm::vec3(500.0f, 500.0f, 500.0f)
 };
 
 
@@ -130,40 +130,252 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("Shaders/model/model_loading.vs", "Shaders/model/model_loading.fs");
-
-    Shader pbrShader("Shaders/pbr.vs", "Shaders/pbr.fs");
+    Shader pbrShader("Shaders/PBR/pbr.vs", "Shaders/PBR/pbr.fs");
+    Shader equirectangularToCubemapShader("Shaders/PBR/cubemap.vs", "Shaders/PBR/equirectangular_to_cubemap.fs");
+    Shader irradianceShader("Shaders/PBR/cubemap.vs", "Shaders/PBR/irradiance_convolution.fs");
+    Shader prefilterShader("Shaders/PBR/cubemap.vs", "Shaders/PBR/prefilter.fs");
+    Shader brdfShader("Shaders/PBR/brdf.vs", "Shaders/PBR/brdf.fs");
 
     // load models
     // -----------
     Shader skyboxShader("Shaders/skybox/skybox.vs", "Shaders/skybox/skybox.fs");
-        std::vector<std::string> faces = {
-        "Textures/skybox/right.jpg",
-        "Textures/skybox/left.jpg",
-        "Textures/skybox/top.jpg",
-        "Textures/skybox/bottom.jpg",
-        "Textures/skybox/front.jpg",
-        "Textures/skybox/back.jpg"
+    std::vector<std::string> faces = {
+    "Textures/skybox/right.jpg",
+    "Textures/skybox/left.jpg",
+    "Textures/skybox/top.jpg",
+    "Textures/skybox/bottom.jpg",
+    "Textures/skybox/front.jpg",
+    "Textures/skybox/back.jpg"
     };
 
     Skybox skybox(faces, skyboxShader.getID());
     Model trackModel("Objects/racetrack/track3.obj");
     Model trackCollisionModel("Objects/racetrack/track.obj");
 
-   //Model carModel("Objects/jeep/car.obj");
-   //Model wheelModel("Objects/jeep/wheel.obj");
-   //Model carModel("Objects/chev-nascar/body.obj");
-   Model wheelModel("Objects/chev-nascar/wheel1.obj");
-   Model carModel("Objects/pbrCar/CarBody2.obj");
-   ourShader.use();
-   ourShader.setInt("material.diffuse", 0);
-   ourShader.setInt("material.specular", 1);
+    //Model carModel("Objects/jeep/car.obj");
+    //Model wheelModel("Objects/jeep/wheel.obj");
+    //Model carModel("Objects/chev-nascar/body.obj");
+    Model wheelModel("Objects/chev-nascar/wheel1.obj");
+    Model carModel("Objects/pbrCar/CarBody2.obj");
+    ourShader.use();
+    ourShader.setInt("material.diffuse", 0);
+    ourShader.setInt("material.specular", 1);
 
-   pbrShader.use();
-   pbrShader.setInt("albedoMap", 0);
-   pbrShader.setInt("normalMap", 1);
-   pbrShader.setInt("metallicMap", 2);
-   pbrShader.setInt("roughnessMap", 3);
-   pbrShader.setInt("aoMap", 4);
+    pbrShader.use();
+    pbrShader.setInt("irradianceMap", 0);
+    pbrShader.setInt("prefilterMap", 1);
+    pbrShader.setInt("brdfLUT", 2);
+    pbrShader.setInt("albedoMap", 3);
+    pbrShader.setInt("normalMap", 4);
+    pbrShader.setInt("metallicMap", 5);
+    pbrShader.setInt("roughnessMap", 6);
+    pbrShader.setInt("aoMap", 7);
+
+    // pbr: setup framebuffer
+   // ----------------------
+    unsigned int captureFBO;
+    unsigned int captureRBO;
+    glGenFramebuffers(1, &captureFBO);
+    glGenRenderbuffers(1, &captureRBO);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
+
+    // pbr: load the HDR environment map
+    // ---------------------------------
+    stbi_set_flip_vertically_on_load(true);
+    int width, height, nrComponents;
+    float* data = stbi_loadf("Textures/track_hdr.hdr", & width, & height, & nrComponents, 0);
+    unsigned int hdrTexture;
+    if (data)
+    {
+        glGenTextures(1, &hdrTexture);
+        glBindTexture(GL_TEXTURE_2D, hdrTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data); // note how we specify the texture's data value to be float
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Failed to load HDR image." << std::endl;
+    }
+
+    // pbr: setup cubemap to render to and attach to framebuffer
+    // ---------------------------------------------------------
+    unsigned int envCubemap;
+    glGenTextures(1, &envCubemap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 512, 512, 0, GL_RGB, GL_FLOAT, nullptr);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // enable pre-filter mipmap sampling (combatting visible dots artifact)
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // pbr: set up projection and view matrices for capturing data onto the 6 cubemap face directions
+    // ----------------------------------------------------------------------------------------------
+    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+    glm::mat4 captureViews[] =
+    {
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+    };
+
+    // pbr: convert HDR equirectangular environment map to cubemap equivalent
+    // ----------------------------------------------------------------------
+    equirectangularToCubemapShader.use();
+    equirectangularToCubemapShader.setInt("equirectangularMap", 0);
+    equirectangularToCubemapShader.setMat4("projection", captureProjection);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, hdrTexture);
+
+    glViewport(0, 0, 512, 512); // don't forget to configure the viewport to the capture dimensions.
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        equirectangularToCubemapShader.setMat4("view", captureViews[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //renderCube();
+
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // then let OpenGL generate mipmaps from first mip face (combatting visible dots artifact)
+    glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+    // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
+    // --------------------------------------------------------------------------------
+    unsigned int irradianceMap;
+    glGenTextures(1, &irradianceMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 32, 32, 0, GL_RGB, GL_FLOAT, nullptr);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
+
+    // pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
+    // -----------------------------------------------------------------------------
+    irradianceShader.use();
+    irradianceShader.setInt("environmentMap", 0);
+    irradianceShader.setMat4("projection", captureProjection);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+
+    glViewport(0, 0, 32, 32); // don't forget to configure the viewport to the capture dimensions.
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        irradianceShader.setMat4("view", captureViews[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //renderCube();
+
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale.
+    // --------------------------------------------------------------------------------
+    unsigned int prefilterMap;
+    glGenTextures(1, &prefilterMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
+    for (unsigned int i = 0; i < 6; ++i)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, 128, 128, 0, GL_RGB, GL_FLOAT, nullptr);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // be sure to set minification filter to mip_linear 
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // generate mipmaps for the cubemap so OpenGL automatically allocates the required memory.
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+
+    // pbr: run a quasi monte-carlo simulation on the environment lighting to create a prefilter (cube)map.
+    // ----------------------------------------------------------------------------------------------------
+    prefilterShader.use();
+    prefilterShader.setInt("environmentMap", 0);
+    prefilterShader.setMat4("projection", captureProjection);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    unsigned int maxMipLevels = 5;
+    for (unsigned int mip = 0; mip < maxMipLevels; ++mip)
+    {
+        // reisze framebuffer according to mip-level size.
+        unsigned int mipWidth = static_cast<unsigned int>(128 * std::pow(0.5, mip));
+        unsigned int mipHeight = static_cast<unsigned int>(128 * std::pow(0.5, mip));
+        glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mipWidth, mipHeight);
+        glViewport(0, 0, mipWidth, mipHeight);
+
+        float roughness = (float)mip / (float)(maxMipLevels - 1);
+        prefilterShader.setFloat("roughness", roughness);
+        for (unsigned int i = 0; i < 6; ++i)
+        {
+            prefilterShader.setMat4("view", captureViews[i]);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            //renderCube();
+        }
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // pbr: generate a 2D LUT from the BRDF equations used.
+    // ----------------------------------------------------
+    unsigned int brdfLUTTexture;
+    glGenTextures(1, &brdfLUTTexture);
+
+    // pre-allocate enough memory for the LUT texture.
+    glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
+    // be sure to set wrapping mode to GL_CLAMP_TO_EDGE
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
+
+    glViewport(0, 0, 512, 512);
+    brdfShader.use();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //renderQuad();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     chevConfig.position = glm::vec3(0.0f, 0.0f, 0.0f);
     chevConfig.bodyOffset = glm::vec3(0.0f, -1.0f, 0.0f);
@@ -182,9 +394,20 @@ int main()
     car.applyConfig(chevConfig);
     assignTrianglesToGrid(trackCollisionModel, gridSize, gridWidth, gridHeight, gridCells);
     assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCellsCollision);
-    car.setCollisionGrid(gridCells,gridCellsCollision, gridSize, gridWidth, gridHeight);
+    car.setCollisionGrid(gridCells, gridCellsCollision, gridSize, gridWidth, gridHeight);
 
     soundManager.preloadSound("accelerate", "Sounds/accelerate_sound2.wav");
+
+    pbrShader.use();
+
+    for (int i = 0; i < 4; ++i) {
+        pbrShader.setVec3("lightPositions[" + std::to_string(i) + "]", lightPositions[i]);
+        pbrShader.setVec3("lightColors[" + std::to_string(i) + "]", lightColors[i]);
+    }
+
+    int scrWidth, scrHeight;
+    glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
+    glViewport(0, 0, scrWidth, scrHeight);
 
     // render loop
     // -----------
@@ -207,50 +430,52 @@ int main()
         // render
         // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
-
-        pbrShader.use();
-        pbrShader.setInt("albedoMap", 0);
-        pbrShader.setInt("normalMap", 1);
-        pbrShader.setInt("metallicMap", 2);
-        pbrShader.setInt("roughnessMap", 3);
-        pbrShader.setInt("aoMap", 4);
-
-
-        for (int i = 0; i < 4; ++i) {
-            pbrShader.setVec3("lightPositions[" + std::to_string(i) + "]", lightPositions[i]);
-            pbrShader.setVec3("lightColors[" + std::to_string(i) + "]", lightColors[i]);
-        }
-
-        pbrShader.setVec3("camPos", camera.Position);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!  
         
+        pbrShader.use();
+
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 200.0f);
         glm::mat4 view = camera.GetViewMatrix();
         pbrShader.setMat4("projection", projection);
         pbrShader.setMat4("view", view);
+        pbrShader.setVec3("camPos", camera.Position);
 
         //track
         glm::mat4 model = glm::mat4(1.0f);
         pbrShader.setMat4("model", model);
+        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
+
         trackModel.Draw(pbrShader);
 
         //car body
         car.updatePositionAndDirection(deltaTime);
         car.updateModelMatrix();  // Update the car and wheel transformations
         pbrShader.setMat4("model", car.getModelMatrix());
+        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getModelMatrix()))));
         carModel.Draw(pbrShader);
 
         pbrShader.setMat4("model", car.getFrontLeftWheelModelMatrix());
+        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontLeftWheelModelMatrix()))));
         wheelModel.Draw(pbrShader);
 
         pbrShader.setMat4("model", car.getFrontRightWheelModelMatrix());
+        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontLeftWheelModelMatrix()))));
         wheelModel.Draw(pbrShader);
 
         pbrShader.setMat4("model", car.getBackLeftWheelModelMatrix());
+        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontLeftWheelModelMatrix()))));
         wheelModel.Draw(pbrShader);
 
         pbrShader.setMat4("model", car.getBackRightWheelModelMatrix());
+        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontLeftWheelModelMatrix()))));
         wheelModel.Draw(pbrShader);
 
         skybox.draw(view, projection);
@@ -371,7 +596,7 @@ glm::vec3 calculateTriangleNormal(const glm::vec3& v0, const glm::vec3& v1, cons
     glm::vec3 edge2 = v2 - v0;
     glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
     return normal;
-} 
+}
 
 void printGridCells() {
 
@@ -395,7 +620,7 @@ int getGridIndex(int x, int z, int gridWidth) {
 }
 
 
-void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight,std::vector<std::vector<Triangle>> & gridCells) {
+void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<Triangle>>& gridCells) {
 
     // Resize gridCells
     gridCells.resize(gridWidth * gridHeight);
@@ -507,14 +732,14 @@ void handleCarSound(SoundManager& soundManager, const Car& car) {
 
 
 float calculateOptimalGridSize(const Model& trackModel, int desiredGridCount) {
-    
+
     // Initialize min and max bounds
     glm::vec3 minBounds(FLT_MAX, FLT_MAX, FLT_MAX);
     glm::vec3 maxBounds(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
     for (const Mesh& mesh : trackModel.meshes) {
         for (unsigned int i = 0; i < mesh.indices.size(); i++) {
-            
+
             glm::vec3 vertex = mesh.vertices[mesh.indices[i]].Position;
 
             minBounds = glm::min(minBounds, vertex);

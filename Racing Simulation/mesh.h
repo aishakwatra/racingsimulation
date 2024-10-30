@@ -100,7 +100,7 @@ public:
         unsigned int albedoNr = 1, normalNr = 1, metallicNr = 1, roughnessNr = 1, aoNr = 1;
 
         for (unsigned int i = 0; i < textures.size(); i++) {
-            glActiveTexture(GL_TEXTURE0 + i);
+            glActiveTexture(GL_TEXTURE0 + i + 3);
             string name = textures[i].type;
             string number;
 
@@ -115,7 +115,7 @@ public:
             else if (name == "texture_ao")
                 number = std::to_string(aoNr++);
 
-            shader.setInt(name + number, i);
+            shader.setInt(name + number, i + 3);
             glBindTexture(GL_TEXTURE_2D, textures[i].id);
         }
 

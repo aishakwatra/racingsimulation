@@ -35,16 +35,20 @@ void Car::updateModelMatrix() {
     bool sideCollision = collisionChecker.checkTrackIntersectionWithGrid(sideCollisionAABB);
 
     if (sideCollision) {
-        glm::vec3 correction = -direction * 0.3f;  // Increase correction step
+        
+        glm::vec3 correctionDirection = (speed >= 0.0f) ? -direction : direction;
+
+        // Apply correction to position in the correct direction
+        glm::vec3 correction = correctionDirection * 0.3f;
         position += correction;
 
-        //bounce-back effect and reduce speed more aggressively
-        speed *= -0.5f;
+        // Halt the car's movement by setting speed to 0
+        speed *= 0.5f;
 
-    } else {
-
+    }
+    else {
+        // Proceed to the next position if no collision occurs
         position = nextPosition;
-
     }
 
     // Offsets for wheel rays (pointing downward)

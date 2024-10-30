@@ -173,10 +173,10 @@ private:
         vector<Texture> metallicMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_metallic");
         textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
 
-        vector<Texture> roughnessMaps = loadMaterialTextures(material, aiTextureType_SHININESS, "texture_roughness");
+        vector<Texture> roughnessMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE_ROUGHNESS, "texture_roughness");
         textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
 
-        vector<Texture> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ao");
+        vector<Texture> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT_OCCLUSION, "texture_ao");
         textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
 
         // return a mesh object created from the extracted mesh data
@@ -199,6 +199,7 @@ private:
             {
                 if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
                 {
+                    std::cout << "Texture already loaded, skipping: " << str.C_Str() << std::endl;
                     textures.push_back(textures_loaded[j]);
                     skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
                     break;
@@ -210,6 +211,9 @@ private:
                 texture.id = TextureFromFile(str.C_Str(), this->directory);
                 texture.type = typeName;
                 texture.path = str.C_Str();
+
+                std::cout << "Texture loaded successfully: " << str.C_Str() << std::endl;
+
                 textures.push_back(texture);
                 textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
             }
