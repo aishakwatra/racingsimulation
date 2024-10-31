@@ -4,6 +4,10 @@ const float SHARP_TURN_SPEED_THRESHOLD = 50.0f; // speed in km/h
 const float SHARP_TURN_ANGLE_THRESHOLD = 30.0f; // angle in degrees
 float currentPitch;
 float currentRoll;
+// Define additional attributes for pitch control
+float pitchControl = 0.0f;  // Delta change for pitch
+const float PITCH_CONTROL_SPEED = 0.05f;  // Speed at which pitch is adjusted
+const float MAX_PITCH_ANGLE = 10.0f;  // Maximum pitch angle in degre
 
 bool isAirborne = false;
 float verticalVelocity = 0.0f;
@@ -132,8 +136,7 @@ void Car::updateModelMatrix(float deltaTime) {
     float rollAngleTarget = glm::atan(rollHeightDifference / glm::length(frontRightWheelIntersection - frontLeftWheelIntersection));
 
     float orientationLerpFactor = glm::mix(0.2f, 0.05f, glm::clamp(speed / maxSpeed, 0.0f, 1.0f));
-    currentPitch = glm::mix(currentPitch, pitchAngleTarget, orientationLerpFactor);
-    currentRoll = glm::mix(currentRoll, rollAngleTarget, orientationLerpFactor);
+   
 
     float targetY = (frontLeftWheelIntersection.y + frontRightWheelIntersection.y + backLeftWheelIntersection.y + backRightWheelIntersection.y) / 4.0f + 1.5f;
 
@@ -141,7 +144,7 @@ void Car::updateModelMatrix(float deltaTime) {
         float adjustedGravity = baseGravity * (carWeight / 1000.0f);  // Heavier cars fall faster
         verticalVelocity -= adjustedGravity * deltaTime;
         position.y += verticalVelocity * deltaTime;
-
+        currentPitch -= 0.7 * deltaTime;
         if (position.y <= targetY) {
             position.y = targetY;
             isAirborne = false;
@@ -149,8 +152,11 @@ void Car::updateModelMatrix(float deltaTime) {
         }
     }
     else {
-        float yLerpFactor = glm::mix(0.5f, 0.3f, glm::clamp(speed / maxSpeed, 0.0f, 1.0f));
-        position.y = glm::mix(position.y, targetY, yLerpFactor);
+       
+        position.y = targetY;
+
+        currentPitch = glm::mix(currentPitch, pitchAngleTarget, orientationLerpFactor);
+       currentRoll = glm::mix(currentRoll, rollAngleTarget, orientationLerpFactor);
 
         if (speed > jumpThresholdSpeed && pitchAngleTarget > pitchJumpThreshold) {
             isAirborne = true;
@@ -216,22 +222,26 @@ float Car::getMaxSpeed() const {
     return maxSpeed;
 }
 
+
 void Car::accelerate(float deltaTime) {
-    if (!isAirborne) {  // Only allow acceleration if the car is on the ground
+    if (!isAirborne) {
+     // Only allow acceleration if the car is on the ground
         speed += acceleration * deltaTime;
         if (speed > maxSpeed) {
             speed = maxSpeed;
         }
     }
+
 }
 
 
 void Car::brake(float deltaTime) {
-
+    if (!isAirborne) {
         speed -= brakingForce * deltaTime;
         if (speed < -maxSpeed / 2.0f) {
             speed = -maxSpeed / 2.0f;  // Limit reverse speed
         }
+    }
     
 }
 

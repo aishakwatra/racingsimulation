@@ -26,7 +26,6 @@ public:
     glm::mat4 getFrontRightWheelModelMatrix() const;
     glm::mat4 getBackLeftWheelModelMatrix() const;
     glm::mat4 getBackRightWheelModelMatrix() const;
-
     bool isActive() const;
 
     // Movement and steering methods
@@ -35,6 +34,8 @@ public:
     void slowDown(float deltaTime);
     void steerLeft(float deltaTime );
     void steerRight(float deltaTime );
+    void adjustPitch(float amount);
+    void adjustRoll(float amount);
     bool isSharpTurn(float steeringAngle) const;
     void centerSteering(float deltaTime);
     void updateWheelRotations(float deltaTime);
@@ -76,6 +77,13 @@ private:
     Wheel frontRightWheel;
     Wheel backLeftWheel;
     Wheel backRightWheel;
+
+    float currentPitch;
+    float currentRoll;
+    // Define additional attributes for pitch control
+    float pitchControl = 0.0f;  // Delta change for pitch
+    const float PITCH_CONTROL_SPEED = 0.05f;  // Speed at which pitch is adjusted
+    const float MAX_PITCH_ANGLE = 10.0f;  // Maximum pitch angle in degre
 
     // Wheel rays (pointing downward)
     glm::vec3 frontLeftWheelRayOrigin, frontRightWheelRayOrigin;
