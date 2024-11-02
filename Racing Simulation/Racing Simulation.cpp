@@ -155,7 +155,7 @@ int main()
 
 
     chevConfig.position = glm::vec3(-3.0f, 10.0f, -53.0f);
-    chevConfig.startPosition = glm::vec3(-2.5f, 0.0f, -1.0f);
+    chevConfig.startPosition = glm::vec3(-2.5f, 0.0f, -1.5f);
     chevConfig.bodyOffset = glm::vec3(0.0f, -1.5f, 0.0f);
     chevConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
     chevConfig.wheelScale = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -169,7 +169,7 @@ int main()
     chevConfig.backLeftWheelOffset = glm::vec3(0.58f, -1.2f, -0.80f);
 
     jeepConfig.position = glm::vec3(3.0f, 10.0f,-57.0f);
-    jeepConfig.startPosition = glm::vec3(2.5f, 0.0f, -1.0f);
+    jeepConfig.startPosition = glm::vec3(2.5f, 0.0f, -1.5f);
     jeepConfig.bodyOffset = glm::vec3(0.0f, -0.3f, 0.0f);
     jeepConfig.bodyScale = glm::vec3(1.0f, 1.0f, 1.0f);
     jeepConfig.wheelScale = glm::vec3(1.5f, 1.5f, 1.5f);
@@ -390,7 +390,7 @@ void processInput(GLFWwindow* window)
     }
 
     // Acceleration and braking
-    if (selectedCar && selectedCar->isActive()) {
+    if (selectedCar && selectedCar->isActive() && gameStarted) {
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             selectedCar->accelerate(deltaTime);
         }

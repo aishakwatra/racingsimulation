@@ -293,6 +293,7 @@ bool Car::isSharpTurn(float steeringAngle) const {
 }
 
 void Car::steerLeft(float deltaTime) {
+
     float angleChange = 120.0f * deltaTime; // Degrees per second
     frontLeftWheel.steeringAngle += angleChange;
     frontRightWheel.steeringAngle += angleChange;
