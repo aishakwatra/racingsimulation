@@ -38,7 +38,7 @@ const unsigned int SCR_WIDTH = 1920;
 const unsigned int SCR_HEIGHT = 1080;
 
 // camera
-Camera camera(glm::vec3(0.0f, 15.0f, 0.0f));
+Camera camera(glm::vec3(0.0f, 8.5f, -55.0f));
 float near_plane = 0.1f, far_plane = 200.0f;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
@@ -76,6 +76,7 @@ Model* wheel2Model;
 
 SoundManager soundManager;
 
+bool gameStarted = false;
 
 int main()
 {
@@ -152,7 +153,9 @@ int main()
     car2Model = new Model("Objects/jeep/car.obj");
     wheel2Model = new Model("Objects/jeep/wheel.obj");
 
-    chevConfig.position = glm::vec3(-2.5f, 0.0f, -1.0f);
+
+    chevConfig.position = glm::vec3(-3.0f, 10.0f, -53.0f);
+    chevConfig.startPosition = glm::vec3(-2.5f, 0.0f, -1.0f);
     chevConfig.bodyOffset = glm::vec3(0.0f, -1.5f, 0.0f);
     chevConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
     chevConfig.wheelScale = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -160,29 +163,36 @@ int main()
     chevConfig.maxSpeed = 100.0f;
     chevConfig.acceleration = 20.0f;
     chevConfig.brakingForce = 30.0f;
-    chevConfig.frontRightWheelOffset = glm::vec3(-0.55f, -1.2f, 1.10f);
-    chevConfig.frontLeftWheelOffset = glm::vec3(0.55f, -1.2f, 1.10f);
-    chevConfig.backRightWheelOffset = glm::vec3(-0.55f, -1.2f, -0.80f);
-    chevConfig.backLeftWheelOffset = glm::vec3(0.55f, -1.2f, -0.80f);
+    chevConfig.frontRightWheelOffset = glm::vec3(-0.58f, -1.2f, 1.10f);
+    chevConfig.frontLeftWheelOffset = glm::vec3(0.58f, -1.2f, 1.10f);
+    chevConfig.backRightWheelOffset = glm::vec3(-0.58f, -1.2f, -0.80f);
+    chevConfig.backLeftWheelOffset = glm::vec3(0.58f, -1.2f, -0.80f);
 
-    jeepConfig.position = glm::vec3(2.5f, 1.0f,-1.0f);
-    jeepConfig.bodyOffset = glm::vec3(0.0f, 0.0f, 0.0f);
+    jeepConfig.position = glm::vec3(3.0f, 10.0f,-57.0f);
+    jeepConfig.startPosition = glm::vec3(2.5f, 0.0f, -1.0f);
+    jeepConfig.bodyOffset = glm::vec3(0.0f, -0.3f, 0.0f);
     jeepConfig.bodyScale = glm::vec3(1.0f, 1.0f, 1.0f);
     jeepConfig.wheelScale = glm::vec3(1.5f, 1.5f, 1.5f);
     chevConfig.carWeight = 2000.0f;
     jeepConfig.maxSpeed = 100.0f;
     jeepConfig.acceleration = 10.0f;
     jeepConfig.brakingForce = 30.0f;
-    jeepConfig.frontRightWheelOffset = glm::vec3(-0.55f, -1.2f, 1.10f);
-    jeepConfig.frontLeftWheelOffset = glm::vec3(0.55f, -1.2f, 1.10f);
-    jeepConfig.backRightWheelOffset = glm::vec3(-0.55f, -1.2f, -0.80f);
-    jeepConfig.backLeftWheelOffset = glm::vec3(0.55f, -1.2f, -0.80f);
+    jeepConfig.frontRightWheelOffset = glm::vec3(-0.55f, -1.0f, 1.0f);
+    jeepConfig.frontLeftWheelOffset = glm::vec3(0.55f, -1.0f, 1.0f);
+    jeepConfig.backRightWheelOffset = glm::vec3(-0.55f, -1.0f, -0.70f);
+    jeepConfig.backLeftWheelOffset = glm::vec3(0.55f, -1.0f, -0.70f);
 
     gridSize = calculateOptimalGridSize(trackModel, gridHeight);
 
     chev.applyConfig(chevConfig);
     jeep.applyConfig(jeepConfig);
+   
+    selectedCar = &chev;
+    camera.LookAtCar(chev.getPosition() - glm::vec3(0, 1.8f, 0));
 
+    chev.startSelectionRotation();
+    jeep.startSelectionRotation();
+  
 
     assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCells);
     assignTrianglesToGrid(trackCollisionModel, gridSize, gridWidth, gridHeight, gridCellsCollision);
@@ -270,9 +280,14 @@ int main()
         ourShader.setVec3("viewPos", camera.Position);
         ourShader.setVec3("lightPosition", lightPos);
         renderScene(ourShader);
-
-        if (selectedCar && selectedCar->isActive()) {
-            selectedCar->update(deltaTime);
+        camera.Update(deltaTime);
+        if (!gameStarted) {
+            chev.update(deltaTime);
+            jeep.update(deltaTime);
+            
+        }
+        else {
+            selectedCar->update(deltaTime); // Only update the selected car
         }
 
         skybox.draw(view, projection);
@@ -295,47 +310,50 @@ int main()
     return 0;
 }
 
-void renderScene(Shader& shader)
-{
-    //track
+void renderScene(Shader& shader) {
+    // Track
     glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", model);
     trackVisual->Draw(shader);
 
-    // Draw the car body
-    shader.setMat4("model", chev.getModelMatrix());
-    carModel->Draw(shader);
+    // Render cars based on game state and activation
+    if (!gameStarted || (gameStarted && chev.isActive())) {
+        // Draw the Chevrolet car body
+        shader.setMat4("model", chev.getModelMatrix());
+        carModel->Draw(shader);  // Assuming carModel is the model for Chevrolet
 
-    // Draw the wheels
-    shader.setMat4("model", chev.getFrontLeftWheelModelMatrix());
-    wheelModel->Draw(shader);
+        // Draw the Chevrolet wheels
+        shader.setMat4("model", chev.getFrontLeftWheelModelMatrix());
+        wheelModel->Draw(shader);  // Assuming wheelModel is shared or change accordingly
 
-    shader.setMat4("model", chev.getFrontRightWheelModelMatrix());
-    wheelModel->Draw(shader);
+        shader.setMat4("model", chev.getFrontRightWheelModelMatrix());
+        wheelModel->Draw(shader);
 
-    shader.setMat4("model", chev.getBackLeftWheelModelMatrix());
-    wheelModel->Draw(shader);
+        shader.setMat4("model", chev.getBackLeftWheelModelMatrix());
+        wheelModel->Draw(shader);
 
-    shader.setMat4("model", chev.getBackRightWheelModelMatrix());
-    wheelModel->Draw(shader);
+        shader.setMat4("model", chev.getBackRightWheelModelMatrix());
+        wheelModel->Draw(shader);
+    }
 
-    // Draw the car body
-    shader.setMat4("model", jeep.getModelMatrix());
-    car2Model->Draw(shader);
+    if (!gameStarted || (gameStarted && jeep.isActive())) {
+        // Draw the Jeep car body
+        shader.setMat4("model", jeep.getModelMatrix());
+        car2Model->Draw(shader);  // Assuming car2Model is the model for Jeep
 
-    // Draw the wheels
-    shader.setMat4("model", jeep.getFrontLeftWheelModelMatrix());
-    wheel2Model->Draw(shader);
+        // Draw the Jeep wheels
+        shader.setMat4("model", jeep.getFrontLeftWheelModelMatrix());
+        wheel2Model->Draw(shader);  // Assuming wheel2Model is shared or change accordingly
 
-    shader.setMat4("model", jeep.getFrontRightWheelModelMatrix());
-    wheel2Model->Draw(shader);
+        shader.setMat4("model", jeep.getFrontRightWheelModelMatrix());
+        wheel2Model->Draw(shader);
 
-    shader.setMat4("model", jeep.getBackLeftWheelModelMatrix());
-    wheel2Model->Draw(shader);
+        shader.setMat4("model", jeep.getBackLeftWheelModelMatrix());
+        wheel2Model->Draw(shader);
 
-    shader.setMat4("model", jeep.getBackRightWheelModelMatrix());
-    wheel2Model->Draw(shader);
-
+        shader.setMat4("model", jeep.getBackRightWheelModelMatrix());
+        wheel2Model->Draw(shader);
+    }
 }
 
 
@@ -345,20 +363,30 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    // Check for car selection
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-        if (selectedCar != &chev) {
-            if (selectedCar) selectedCar->deactivate();
-            selectedCar = &chev;
-            selectedCar->activate();
-        }
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS && !gameStarted) {
+        selectedCar = &chev;
+        camera.LookAtCar(chev.getPosition() - glm::vec3(0,1.0f,0));
     }
-    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-        if (selectedCar != &jeep) {
-            if (selectedCar) selectedCar->deactivate();
-            selectedCar = &jeep;
-            selectedCar->activate();
+    else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS && !gameStarted) {
+        selectedCar = &jeep;
+        camera.LookAtCar(jeep.getPosition() - glm::vec3(0, 1.0f, 0));
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+        selectedCar->stopSelectionRotation();
+        selectedCar->moveToStartPosition();
+        selectedCar->resetRotation();
+        selectedCar->activate();
+        if (selectedCar == &chev) {
+            jeep.stopSelectionRotation();
+            jeep.deactivate();
         }
+        else {
+            chev.stopSelectionRotation();
+            chev.deactivate();
+        }
+        gameStarted = true;
+        camera.shouldFollow = true;
     }
 
     // Acceleration and braking

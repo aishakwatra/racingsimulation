@@ -18,7 +18,7 @@ const float pitchJumpThreshold = 0.1f;
 float verticalVelocityFactor = 0.1f;
 
 Car::Car(const CarConfig& config)
-    : position(config.position), bodyOffset(config.bodyOffset), bodyScale(config.bodyScale), direction(config.direction), rotation(config.rotation),
+    : position(config.position),startPosition(config.startPosition), bodyOffset(config.bodyOffset), bodyScale(config.bodyScale), direction(config.direction), rotation(config.rotation),
     speed(config.speed), maxSpeed(config.maxSpeed), acceleration(config.acceleration), maxSteeringAngleAtMaxSpeed(config.maxSteeringAngleAtMaxSpeed),
     maxSteeringAngleAtZeroSpeed(config.maxSteeringAngleAtZeroSpeed), turnSharpnessFactor(config.turnSharpnessFactor),
     brakingForce(config.brakingForce), wheelScale(config.wheelScale), frontLeftWheel(config.frontLeftWheelOffset, true),
@@ -28,6 +28,7 @@ Car::Car(const CarConfig& config)
 
 void Car::applyConfig(const CarConfig& config) {
     position = config.position;
+    startPosition = config.startPosition;
     bodyScale = config.bodyScale;
     bodyOffset = config.bodyOffset;
     wheelScale = config.wheelScale;
@@ -58,6 +59,27 @@ void Car::deactivate() {
     active = false;
 }
 
+
+void Car::startSelectionRotation() {
+    rotatingForSelection = true;
+}
+
+void Car::stopSelectionRotation() {
+    rotatingForSelection = false;
+}
+
+void Car::rotateForSelection(float deltaTime) {
+    if (rotatingForSelection) {
+        rotation += 30.0f * deltaTime; // Rotate 30 degrees per second
+        rotation = fmod(rotation, 360.0f); // Keep the rotation within 0-360 degrees
+    }
+}
+
+void Car::resetRotation() {
+    rotation = 0.0f; // Resets the rotation to a default value, usually 0 degrees
+    initializeModelMatrix(); // Reinitialize the model matrix with the updated rotation
+}
+
 bool Car::isActive() const {
 	return active;
 }
@@ -66,8 +88,14 @@ void Car::setCollisionGrid(const std::vector<std::vector<Triangle>>& gridCells,c
 }
 
 void Car::update(float deltaTime) {
-    if (!active) return;
 
+    if (rotatingForSelection) {
+        rotateForSelection(deltaTime);
+    }
+
+    if (!active ) return;  // Skip updating if the car is not active or in selection mode
+
+   
     updatePositionAndDirection(deltaTime);
     updateModelMatrix(deltaTime);
     updateWheelRotations(deltaTime);
@@ -326,6 +354,12 @@ void Car::updatePositionAndDirection(float deltaTime) {
         nextPosition = position;  // No movement if the car is not moving
     }
 
+}
+
+
+void Car::moveToStartPosition() {
+    position = startPosition;  // startPosition should be part of CarConfig or stored in Car
+    initializeModelMatrix();   // Update model matrix to reflect new position
 }
 
 void Car::updateWheelRotations(float deltaTime) {

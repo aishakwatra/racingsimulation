@@ -37,9 +37,13 @@ public:
     float OrbitRadius;
     float OrbitMinRadius = 5.0f;
     float OrbitMaxRadius = 20.0f;
+    bool shouldFollow;
+    glm::vec3 TargetFront;
+    bool isTransitioning;
+    float transitionSpeed = 10.0f;
 
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH, float orbitRadius = 10.0f)
-        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), OrbitRadius(orbitRadius), isDragging(false) {
+        : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), OrbitRadius(orbitRadius), isDragging(false), shouldFollow(false) {  // Initialize shouldFollow to false
         Position = position;
         WorldUp = up;
         Yaw = yaw;
@@ -65,7 +69,7 @@ public:
     }
 
     void FollowCar(glm::vec3 carPosition, glm::vec3 carDirection, float carSpeed, float maxSpeed, float steeringAngle, float deltaTime) {
-    if (isDragging) return;  // Do not adjust position while dragging
+        if (isDragging || !shouldFollow) return;
 
     // Set follow distance directly without lerping
     float followDistance = glm::mix(5.0f, 10.0f, glm::clamp(carSpeed / maxSpeed, 0.0f, 1.0f));  // Closer positioning
@@ -111,6 +115,23 @@ public:
         updateCameraPosition();
     }
 
+    void LookAtCar(glm::vec3 targetPosition) {
+        TargetFront = glm::normalize(targetPosition - Position);
+        isTransitioning = true;
+    }
+
+
+    void Update(float deltaTime) {
+        if (isTransitioning) {
+            Front = glm::normalize(glm::mix(Front, TargetFront, deltaTime * transitionSpeed));
+            if (glm::length(Front - TargetFront) < 0.01) {
+                Front = TargetFront;
+                isTransitioning = false;
+            }
+            Right = glm::normalize(glm::cross(Front, WorldUp));
+            Up = glm::normalize(glm::cross(Right, Front));
+        }
+    }
 
     void updateCameraPosition() {
         glm::vec3 offset;
@@ -139,8 +160,8 @@ public:
 
 private:
     void updateCameraVectors() {
-        Front = glm::normalize(CarPosition - Position);
-        Right = glm::normalize(glm::cross(Front, WorldUp));
+        // Recalculate the Right and Up vector
+        Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors
         Up = glm::normalize(glm::cross(Right, Front));
     }
 };

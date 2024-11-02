@@ -1,3 +1,40 @@
-﻿  Car.cpp
-D:\DT384\racingsimulation\Racing Simulation\Car.cpp(147,29): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-  Racing Simulation.vcxproj -> D:\DT384\racingsimulation\x64\Debug\Racing Simulation.exe
+﻿  Racing Simulation.cpp
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(425,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(426,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(427,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(428,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(455,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(456,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(469,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(494,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(568,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(568,39): warning C4244:         with
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(568,39): warning C4244:         [
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(568,39): warning C4244:             T=float
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(568,39): warning C4244:         ]
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(569,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(569,39): warning C4244:         with
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(569,39): warning C4244:         [
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(569,39): warning C4244:             T=float
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(569,39): warning C4244:         ]
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(570,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(570,39): warning C4244:         with
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(570,39): warning C4244:         [
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(570,39): warning C4244:             T=float
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(570,39): warning C4244:         ]
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(572,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(572,39): warning C4244:         with
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(572,39): warning C4244:         [
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(572,39): warning C4244:             T=float
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(572,39): warning C4244:         ]
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(573,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(573,39): warning C4244:         with
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(573,39): warning C4244:         [
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(573,39): warning C4244:             T=float
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(573,39): warning C4244:         ]
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(574,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(574,39): warning C4244:         with
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(574,39): warning C4244:         [
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(574,39): warning C4244:             T=float
+C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Racing Simulation.cpp(574,39): warning C4244:         ]
+  Racing Simulation.vcxproj -> C:\Users\orangeduck\Documents\Capt\racingsimulation\x64\Debug\Racing Simulation.exe

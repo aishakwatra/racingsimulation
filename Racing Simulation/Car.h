@@ -15,6 +15,7 @@ public:
     void applyConfig(const CarConfig& config);
     void activate();  // Activate car for updates and physics
     void deactivate();  // Deactivate car to stop updates and physics
+    void moveToStartPosition();
 
     void update(float deltaTime);
     void updateModelMatrix(float deltaTime);
@@ -45,6 +46,9 @@ public:
 
 
     void rotateForSelection(float deltaTime);
+    void resetRotation();
+    void startSelectionRotation();
+    void stopSelectionRotation();
 
     // Getters for position, direction, speed, and other properties
     glm::vec3 getPosition() const;
@@ -56,7 +60,9 @@ public:
 
 private:
     bool active = true;
+    bool rotatingForSelection = false;
     glm::vec3 position;
+    glm::vec3 startPosition;
     glm::vec3 bodyOffset;
     glm::vec3 direction;
     glm::vec3 bodyScale;
