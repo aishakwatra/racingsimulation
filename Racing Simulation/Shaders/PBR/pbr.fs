@@ -100,7 +100,10 @@ void main()
 
     // Metallic (default to 0.0 - non-metallic)
     float metallic = texture(metallicMap, TexCoords).r;
-    metallic = (metallic == 0.0) ? 0.0 : metallic;
+    metallic = (metallic == 0.0) ? 1.0 : metallic;
+
+    //float metallic = 1.0f;
+    //float roughness = 1.0f;
 
     // Roughness (default to 0.5 - moderate roughness)
     float roughness = texture(roughnessMap, TexCoords).r;
@@ -122,7 +125,7 @@ void main()
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    for(int i = 0; i < 4; ++i) 
+    for(int i = 0; i < 0; ++i) 
     {
         // calculate per-light radiance
         vec3 L = normalize(lightPositions[i] - WorldPos);

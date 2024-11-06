@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Racing Simulation.cpp" />
-    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Wheel.cpp" />
-    <ClCompile Include="CollisionChecker.cpp" />
-    <ClCompile Include="Car.cpp" />
     <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="Car.cpp" />
+    <ClCompile Include="CollisionChecker.cpp" />
+    <ClCompile Include="Racing Simulation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -20,6 +20,7 @@
     <ClInclude Include="Wheel.h" />
     <ClInclude Include="CollisionChecker.h" />
     <ClInclude Include="SoundManager.h" />
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\model\model_loading.fs" />
@@ -32,5 +33,11 @@
     <None Include="Shaders\PBR\brdf.fs" />
     <None Include="Shaders\PBR\equirectangular_to_cubemap.fs" />
     <None Include="Shaders\PBR\cubemap.vs" />
+    <None Include="Shaders\PBR\background.vs" />
+    <None Include="Shaders\PBR\background.fs" />
+    <None Include="Shaders\UIShader.vs" />
+    <None Include="Shaders\UIShader.fs" />
+    <None Include="Shaders\text.fs" />
+    <None Include="Shaders\text.vs" />
   </ItemGroup>
 </Project>

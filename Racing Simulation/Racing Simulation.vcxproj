@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,6 +141,7 @@
     <ClInclude Include="shader_m.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="SoundManager.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="Wheel.h" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +155,8 @@
   <ItemGroup>
     <None Include="Shaders\model\model_loading.fs" />
     <None Include="Shaders\model\model_loading.vs" />
+    <None Include="Shaders\PBR\background.fs" />
+    <None Include="Shaders\PBR\background.vs" />
     <None Include="Shaders\PBR\brdf.fs" />
     <None Include="Shaders\PBR\brdf.vs" />
     <None Include="Shaders\PBR\cubemap.vs" />
@@ -161,6 +165,10 @@
     <None Include="Shaders\PBR\pbr.fs" />
     <None Include="Shaders\PBR\pbr.vs" />
     <None Include="Shaders\PBR\prefilter.fs" />
+    <None Include="Shaders\text.fs" />
+    <None Include="Shaders\text.vs" />
+    <None Include="Shaders\UIShader.fs" />
+    <None Include="Shaders\UIShader.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,6 @@
-#pragma once
+
 #ifndef CAR_H
-#define CARL_H
+#define CAR_H
 
 #include "Wheel.h"
 #include "CollisionChecker.h"

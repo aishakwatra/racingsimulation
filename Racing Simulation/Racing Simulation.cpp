@@ -6,6 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #include "shader_m.h"
 #include "Skybox.h"
@@ -16,6 +18,7 @@
 #include "Car.h" 
 #include "Carconfig.h"
 #include "SoundManager.h"
+#include "Timer.h"
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -31,6 +34,16 @@ void handleCarSound(SoundManager& soundManager, const Car& car);
 float calculateOptimalGridSize(const Model& trackModel, int desiredGridCount);
 void assignTrianglesToGrid(const Model& trackModel, float gridSize, int gridWidth, int gridHeight, std::vector<std::vector<Triangle>>& gridCells);
 void checkTrackSize(const Model& trackModel);
+void renderCube();
+void renderQuad();
+
+void renderUIQuad();
+unsigned int loadTexture(const char* path);
+
+void initTextRendering(const std::string& fontPath);
+void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color);
+
+
 
 // settings
 const unsigned int SCR_WIDTH = 1920;
@@ -63,6 +76,11 @@ std::vector<std::vector<Triangle>> gridCellsCollision;
 
 SoundManager soundManager;
 
+glm::vec3 minBounds(-3.0f, -2.0f, -2.0f);
+glm::vec3 maxBounds(3.0f, 2.0f, 2.0f);
+
+Timer timer(minBounds, maxBounds);
+
 
 glm::vec3 lightPositions[4] = {
 glm::vec3(10.0f, 5.0f, 10.0f),
@@ -78,6 +96,18 @@ glm::vec3 lightColors[4] = {
     glm::vec3(500.0f, 500.0f, 500.0f)
 };
 
+// Character struct similar to your existing setup
+struct Character {
+    unsigned int TextureID;
+    glm::ivec2 Size;
+    glm::ivec2 Bearing;
+    unsigned int Advance;
+};
+
+std::map<GLchar, Character> Characters;
+unsigned int textVAO, textVBO;
+
+
 
 int main()
 {
@@ -85,6 +115,7 @@ int main()
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef __APPLE__
@@ -93,7 +124,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Model Loading", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Racing Game", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -125,7 +156,10 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-
+    // set depth function to less than AND equal for skybox depth trick.
+    glDepthFunc(GL_LEQUAL);
+    // enable seamless cubemap sampling for lower mip levels in the pre-filter map.
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
     // build and compile our shader zprogram
     // ------------------------------------
@@ -135,6 +169,9 @@ int main()
     Shader irradianceShader("Shaders/PBR/cubemap.vs", "Shaders/PBR/irradiance_convolution.fs");
     Shader prefilterShader("Shaders/PBR/cubemap.vs", "Shaders/PBR/prefilter.fs");
     Shader brdfShader("Shaders/PBR/brdf.vs", "Shaders/PBR/brdf.fs");
+    Shader backgroundShader("Shaders/PBR/background.vs", "Shaders/PBR/background.fs");
+    Shader uiShader("Shaders/UIShader.vs", "Shaders/UIShader.fs");
+    Shader textShader("Shaders/text.vs", "Shaders/text.fs");
 
     // load models
     // -----------
@@ -148,6 +185,16 @@ int main()
     "Textures/skybox/back.jpg"
     };
 
+    /*Shader skyboxShader("Shaders/skybox/skybox.vs", "Shaders/skybox/skybox.fs");
+    std::vector<std::string> faces = {
+    "Textures/sunset/px.png",
+    "Textures/sunset/nx.png",
+    "Textures/sunset/py.png",
+    "Textures/sunset/ny.png",
+    "Textures/sunset/pz.png",
+    "Textures/sunset/nz.png"
+    };*/
+
     Skybox skybox(faces, skyboxShader.getID());
     Model trackModel("Objects/racetrack/track3.obj");
     Model trackCollisionModel("Objects/racetrack/track.obj");
@@ -155,8 +202,19 @@ int main()
     //Model carModel("Objects/jeep/car.obj");
     //Model wheelModel("Objects/jeep/wheel.obj");
     //Model carModel("Objects/chev-nascar/body.obj");
-    Model wheelModel("Objects/chev-nascar/wheel1.obj");
+    //Model wheelModel("Objects/chev-nascar/wheel1.obj");
     Model carModel("Objects/pbrCar/CarBody2.obj");
+    Model wheelModel("Objects/pbrCar/carwheel.obj");
+
+    //2D UI initializing
+
+    unsigned int uiTexture = loadTexture("Textures/UI/square.png");
+    glm::mat4 uiProjection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+
+    uiShader.use();
+    uiShader.setMat4("projection", uiProjection);
+    uiShader.setInt("uiTexture", 0);
+
     ourShader.use();
     ourShader.setInt("material.diffuse", 0);
     ourShader.setInt("material.specular", 1);
@@ -170,6 +228,14 @@ int main()
     pbrShader.setInt("metallicMap", 5);
     pbrShader.setInt("roughnessMap", 6);
     pbrShader.setInt("aoMap", 7);
+
+    backgroundShader.use();
+    backgroundShader.setInt("environmentMap", 0);
+
+    initTextRendering("Textures/Fonts/digital-7.ttf");
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+    textShader.use();
+    glUniformMatrix4fv(glGetUniformLocation(textShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
     // pbr: setup framebuffer
    // ----------------------
@@ -200,7 +266,10 @@ int main()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+        std::cout << "HDR Loaded: Width = " << width << ", Height = " << height << ", Components = " << nrComponents << std::endl;
+
         stbi_image_free(data);
+
     }
     else
     {
@@ -233,6 +302,7 @@ int main()
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+
     };
 
     // pbr: convert HDR equirectangular environment map to cubemap equivalent
@@ -251,7 +321,7 @@ int main()
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //renderCube();
+        renderCube();
 
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -295,7 +365,7 @@ int main()
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //renderCube();
+        renderCube();
 
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -344,7 +414,7 @@ int main()
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, prefilterMap, mip);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            //renderCube();
+            renderCube();
         }
     }
 
@@ -373,7 +443,7 @@ int main()
     glViewport(0, 0, 512, 512);
     brdfShader.use();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //renderQuad();
+    renderQuad();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -429,8 +499,9 @@ int main()
 
         // render
         // ------
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!  
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
         
         pbrShader.use();
 
@@ -442,10 +513,7 @@ int main()
         pbrShader.setVec3("camPos", camera.Position);
 
         //track
-        glm::mat4 model = glm::mat4(1.0f);
-        pbrShader.setMat4("model", model);
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-
+      
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
         glActiveTexture(GL_TEXTURE1);
@@ -453,6 +521,10 @@ int main()
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
 
+        
+        glm::mat4 model = glm::mat4(1.0f);
+        pbrShader.setMat4("model", model);
+        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
         trackModel.Draw(pbrShader);
 
         //car body
@@ -467,18 +539,48 @@ int main()
         wheelModel.Draw(pbrShader);
 
         pbrShader.setMat4("model", car.getFrontRightWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontLeftWheelModelMatrix()))));
+        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontRightWheelModelMatrix()))));
         wheelModel.Draw(pbrShader);
 
         pbrShader.setMat4("model", car.getBackLeftWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontLeftWheelModelMatrix()))));
+        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontRightWheelModelMatrix()))));
         wheelModel.Draw(pbrShader);
 
         pbrShader.setMat4("model", car.getBackRightWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontLeftWheelModelMatrix()))));
+        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontRightWheelModelMatrix()))));
         wheelModel.Draw(pbrShader);
-
+        
         skybox.draw(view, projection);
+
+        // render skybox (render as last to prevent overdraw)
+        /*backgroundShader.use();
+        backgroundShader.setMat4("view", glm::mat4(1.0f));
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
+        renderCube();*/
+
+        ////RENDER 2D UI
+        //float width = 100.0f;  // Width of the UI element
+        //float height = 75.0f; // Height of the UI element
+
+        //uiShader.use();
+        //model = glm::mat4(1.0f);     
+        //model = glm::translate(model, glm::vec3(2.0, -2.0, 0.0f));
+        //model = glm::scale(model, glm::vec3(width, height, 1.0f));
+        //uiShader.setMat4("model", model);
+
+        //glActiveTexture(GL_TEXTURE0);
+        //glBindTexture(GL_TEXTURE_2D, uiTexture);
+        //renderUIQuad();
+
+        // Update timer
+        timer.update(car.getPosition());
+
+        // Render the timer text
+        std::string timerText = timer.getFormattedTime();
+        std::string bestLapTimeText = "Best Lap: " + timer.getBestLapTime();
+        RenderText(textShader, timerText, 25.0f, 550.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+        RenderText(textShader, bestLapTimeText, 25.0f, 520.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
 
         handleCarSound(soundManager, car);
 
@@ -758,4 +860,302 @@ float calculateOptimalGridSize(const Model& trackModel, int desiredGridCount) {
     float gridSize = maxDimension / desiredGridCount;
 
     return gridSize;
+}
+
+
+// renderCube() renders a 1x1 3D cube in NDC.
+// -------------------------------------------------
+unsigned int cubeVAO = 0;
+unsigned int cubeVBO = 0;
+void renderCube()
+{
+    // initialize (if necessary)
+    if (cubeVAO == 0)
+    {
+        float vertices[] = {
+            // back face
+            -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+             1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+             1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+             1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+            -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+            -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+            // front face
+            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+             1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+             1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+             1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+            -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+            // left face
+            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+            -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+            -1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+            // right face
+             1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+             1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+             1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+             1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+             1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+             1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+             // bottom face
+             -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+              1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+              1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+              1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+             -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+             -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+             // top face
+             -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+              1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+              1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+              1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+             -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+             -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+        };
+        glGenVertexArrays(1, &cubeVAO);
+        glGenBuffers(1, &cubeVBO);
+        // fill buffer
+        glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        // link vertex attributes
+        glBindVertexArray(cubeVAO);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+    // render Cube
+    glBindVertexArray(cubeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
+// renderQuad() renders a 1x1 XY quad in NDC
+// -----------------------------------------
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad()
+{
+    if (quadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+
+
+}
+
+
+unsigned int uiVAO = 0;
+unsigned int uiVBO;
+void renderUIQuad() {
+    if (uiVAO == 0) {
+        float uiVertices[] = {
+            // positions    // texture Coords
+             1.0f,  1.0f,  1.0f, 1.0f, // Top Right
+             1.0f, -1.0f,  1.0f, 0.0f, // Bottom Right
+            -1.0f, -1.0f,  0.0f, 0.0f, // Bottom Left
+            -1.0f,  1.0f,  0.0f, 1.0f  // Top Left 
+        };
+
+        // Setup UI VAO and VBO
+        glGenVertexArrays(1, &uiVAO);
+        glGenBuffers(1, &uiVBO);
+        glBindVertexArray(uiVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, uiVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(uiVertices), &uiVertices, GL_STATIC_DRAW);
+
+        // Position attribute
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+
+        // Texture Coordinate attribute
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+        // Unbind for safety
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+
+    // Render UI Quad
+    glBindVertexArray(uiVAO);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Drawing as TRIANGLE_FAN or TRIANGLE_STRIP
+    glBindVertexArray(0);
+
+}
+
+unsigned int loadTexture(const char* path) {
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data) {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else {
+        std::cout << "Failed to load texture: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
+}
+
+void initTextRendering(const std::string& fontPath) {
+    // Initialize FreeType library
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft)) {
+        std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+        return;
+    }
+
+    if (fontPath.empty())
+    {
+        std::cout << "ERROR::FREETYPE: Failed to load fontPath" << std::endl;
+        return;
+    }
+
+    FT_Face face;
+    if (FT_New_Face(ft, fontPath.c_str(), 0, &face)) {
+        std::cerr << "ERROR::FREETYPE: Failed to load font" << std::endl;
+        FT_Done_FreeType(ft);
+        return;
+    }
+
+    FT_Set_Pixel_Sizes(face, 0, 48);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
+
+    // Load first 128 characters of ASCII
+    for (unsigned char c = 0; c < 128; c++) {
+        if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+            std::cerr << "ERROR::FREETYPE: Failed to load Glyph" << std::endl;
+            continue;
+        }
+        unsigned int texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RED,
+            face->glyph->bitmap.width,
+            face->glyph->bitmap.rows,
+            0,
+            GL_RED,
+            GL_UNSIGNED_BYTE,
+            face->glyph->bitmap.buffer
+        );
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        Character character = {
+            texture,
+            glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+            glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+            static_cast<unsigned int>(face->glyph->advance.x)
+        };
+        Characters.insert(std::pair<char, Character>(c, character));
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // Clean up FreeType
+    FT_Done_Face(face);
+    FT_Done_FreeType(ft);
+
+    // Set up text VAO/VBO
+    glGenVertexArrays(1, &textVAO);
+    glGenBuffers(1, &textVBO);
+    glBindVertexArray(textVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, textVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void RenderText(Shader& shader, std::string text, float x, float y, float scale, glm::vec3 color) {
+
+    glUseProgram(shader.ID); // Use text shader
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // Ensure proper blending for text
+    glUniform3f(glGetUniformLocation(shader.ID, "textColor"), color.x, color.y, color.z);
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(textVAO);
+
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++) {
+        Character ch = Characters[*c];
+
+        float xpos = x + ch.Bearing.x * scale;
+        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+        float w = ch.Size.x * scale;
+        float h = ch.Size.y * scale;
+        float vertices[6][4] = {
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos,     ypos,       0.0f, 1.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+            { xpos + w, ypos + h,   1.0f, 0.0f }
+        };
+        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+        glBindBuffer(GL_ARRAY_BUFFER, textVBO);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        x += (ch.Advance >> 6) * scale;
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
