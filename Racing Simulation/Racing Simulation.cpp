@@ -579,8 +579,8 @@ int main()
         // Render the timer text
         std::string timerText = timer.getFormattedTime();
         std::string bestLapTimeText = "Best Lap: " + timer.getBestLapTime();
-        RenderText(textShader, timerText, 25.0f, 550.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-        RenderText(textShader, bestLapTimeText, 25.0f, 520.0f, 0.8f, glm::vec3(1.0f, 1.0f, 1.0f));
+        RenderText(textShader, timerText, 10.0f, static_cast<float>(SCR_HEIGHT) - 50.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+        RenderText(textShader, bestLapTimeText, 10.0f, static_cast<float>(SCR_HEIGHT) - 80.0f, 0.8f, glm::vec3(0.0f, 1.0f, 0.0f));
 
         handleCarSound(soundManager, car);
 
