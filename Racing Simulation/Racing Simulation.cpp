@@ -580,16 +580,20 @@ int main()
         //render skybox
         skybox.draw(view, projection);
 
-    
-        // Update timer
-        timer.update(selectedCar->getPosition());
-
-        // Render the timer text
-        std::string timerText = timer.getFormattedTime();
-        std::string bestLapTimeText = "Best Lap: " + timer.getBestLapTime();
-        RenderText(textShader, timerText, 10.0f, static_cast<float>(SCR_HEIGHT) - 50.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-        RenderText(textShader, bestLapTimeText, 10.0f, static_cast<float>(SCR_HEIGHT) - 80.0f, 0.8f, glm::vec3(0.0f, 1.0f, 0.0f));
-
+        if (gameStarted) {
+            // Update timer
+            timer.update(selectedCar->getPosition());
+            // Render the timer text
+            std::string timerText = timer.getFormattedTime();
+            std::string bestLapTimeText = "Best Lap: " + timer.getBestLapTime();
+            RenderText(textShader, timerText, 10.0f, static_cast<float>(SCR_HEIGHT) - 50.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+            RenderText(textShader, bestLapTimeText, 10.0f, static_cast<float>(SCR_HEIGHT) - 80.0f, 0.8f, glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+        else
+        {
+            RenderText(textShader, "Press [1]/[2] to select car.", 10.0f, static_cast<float>(SCR_HEIGHT) - 50.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+            RenderText(textShader, "Press [Enter] to confirm.", 10.0f, static_cast<float>(SCR_HEIGHT) - 80.0f, 0.8f, glm::vec3(0.0f, 1.0f, 0.0f));
+        }
         handleCarSound(soundManager, chev);
         handleCarSound(soundManager, cadillac);
 
@@ -725,6 +729,8 @@ void processInput(GLFWwindow* window)
 
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (!gameStarted)
+        return;
     static float mouse_lastX = SCR_WIDTH / 2.0;
     static float mouse_lastY = SCR_HEIGHT / 2.0;
     float xoffset = xpos - mouse_lastX;
@@ -741,6 +747,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (!gameStarted)
+        return;
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (action == GLFW_PRESS) {
             // When the left mouse button is pressed, start dragging
