@@ -223,8 +223,9 @@ int main()
     //Model wheelModel("Objects/jeep/wheel.obj");
     //Model carModel("Objects/chev-nascar/body.obj");
     //Model wheelModel("Objects/chev-nascar/wheel1.obj");
-    Model carModel("Objects/pbrCar/CarBody2.obj");
-    Model wheelModel("Objects/pbrCar/carwheel.obj");
+    
+    //Model carModel("Objects/pbrCar/CarBody2.obj");
+    //Model wheelModel("Objects/pbrCar/carwheel.obj");
 
     //2D UI initializing
 
@@ -506,12 +507,12 @@ int main()
 
     chev.startSelectionRotation();
     jeep.startSelectionRotation();
-  
 
     assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCells);
     assignTrianglesToGrid(trackCollisionModel, gridSize, gridWidth, gridHeight, gridCellsCollision);
     chev.setCollisionGrid(gridCells,gridCellsCollision, gridSize, gridWidth, gridHeight);
     jeep.setCollisionGrid(gridCells, gridCellsCollision, gridSize, gridWidth, gridHeight);
+
     soundManager.preloadSound("accelerate", "Sounds/accelerate_sound2.wav");
 
     pbrShader.use();
@@ -555,11 +556,15 @@ int main()
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, near_plane, far_plane);
         glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
+        pbrShader.setMat4("projection", projection);
+        pbrShader.setMat4("view", view);
+        pbrShader.setVec3("camPos", camera.Position);
+
+        /*ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
         ourShader.setVec3("viewPos", camera.Position);
-        ourShader.setVec3("lightPosition", lightPos);
-        renderScene(ourShader);
+        ourShader.setVec3("lightPosition", lightPos);*/
+       
         camera.Update(deltaTime);
         if (!gameStarted) {
             chev.update(deltaTime);
@@ -569,9 +574,7 @@ int main()
         else {
             selectedCar->update(deltaTime); // Only update the selected car
         }
-        pbrShader.setMat4("projection", projection);
-        pbrShader.setMat4("view", view);
-        pbrShader.setVec3("camPos", camera.Position);
+        
 
         //track
       
@@ -583,38 +586,10 @@ int main()
         glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
 
         
-        glm::mat4 model = glm::mat4(1.0f);
-        pbrShader.setMat4("model", model);
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-        trackModel.Draw(pbrShader);
+        renderScene(pbrShader);
+        skybox.draw(view,projection);
 
-        //car body
-        car.updatePositionAndDirection(deltaTime);
-        car.updateModelMatrix();  // Update the car and wheel transformations
-        pbrShader.setMat4("model", car.getModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getModelMatrix()))));
-        carModel.Draw(pbrShader);
-
-        pbrShader.setMat4("model", car.getFrontLeftWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontLeftWheelModelMatrix()))));
-        wheelModel.Draw(pbrShader);
-
-        pbrShader.setMat4("model", car.getFrontRightWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontRightWheelModelMatrix()))));
-        wheelModel.Draw(pbrShader);
-
-        pbrShader.setMat4("model", car.getBackLeftWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontRightWheelModelMatrix()))));
-        wheelModel.Draw(pbrShader);
-
-        pbrShader.setMat4("model", car.getBackRightWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontRightWheelModelMatrix()))));
-        wheelModel.Draw(pbrShader);
         
-        skybox.draw(view, projection);
-
-        handleCarSound(soundManager, chev);
-        handleCarSound(soundManager, jeep);
         // render skybox (render as last to prevent overdraw)
         /*backgroundShader.use();
         backgroundShader.setMat4("view", glm::mat4(1.0f));
@@ -637,13 +612,16 @@ int main()
         //renderUIQuad();
 
         // Update timer
-        timer.update(car.getPosition());
+        timer.update(selectedCar->getPosition());
 
         // Render the timer text
         std::string timerText = timer.getFormattedTime();
         std::string bestLapTimeText = "Best Lap: " + timer.getBestLapTime();
         RenderText(textShader, timerText, 10.0f, static_cast<float>(SCR_HEIGHT) - 50.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
         RenderText(textShader, bestLapTimeText, 10.0f, static_cast<float>(SCR_HEIGHT) - 80.0f, 0.8f, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        handleCarSound(soundManager, chev);
+        handleCarSound(soundManager, jeep);
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -653,8 +631,6 @@ int main()
     }
 
     delete trackVisual;
-    delete carModel;
-    delete wheelModel;
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -665,44 +641,55 @@ void renderScene(Shader& shader) {
     // Track
     glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", model);
+    shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
     trackVisual->Draw(shader);
 
     // Render cars based on game state and activation
     if (!gameStarted || (gameStarted && chev.isActive())) {
         // Draw the Chevrolet car body
         shader.setMat4("model", chev.getModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(chev.getModelMatrix()))));
         carModel->Draw(shader);  // Assuming carModel is the model for Chevrolet
 
         // Draw the Chevrolet wheels
         shader.setMat4("model", chev.getFrontLeftWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(chev.getFrontLeftWheelModelMatrix()))));
         wheelModel->Draw(shader);  // Assuming wheelModel is shared or change accordingly
 
         shader.setMat4("model", chev.getFrontRightWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(chev.getFrontRightWheelModelMatrix()))));
         wheelModel->Draw(shader);
 
         shader.setMat4("model", chev.getBackLeftWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(chev.getBackLeftWheelModelMatrix()))));
         wheelModel->Draw(shader);
 
         shader.setMat4("model", chev.getBackRightWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(chev.getBackRightWheelModelMatrix()))));
         wheelModel->Draw(shader);
     }
 
     if (!gameStarted || (gameStarted && jeep.isActive())) {
         // Draw the Jeep car body
         shader.setMat4("model", jeep.getModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(jeep.getModelMatrix()))));
         car2Model->Draw(shader);  // Assuming car2Model is the model for Jeep
 
         // Draw the Jeep wheels
         shader.setMat4("model", jeep.getFrontLeftWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(jeep.getFrontLeftWheelModelMatrix()))));
         wheel2Model->Draw(shader);  // Assuming wheel2Model is shared or change accordingly
 
         shader.setMat4("model", jeep.getFrontRightWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(jeep.getFrontRightWheelModelMatrix()))));
         wheel2Model->Draw(shader);
 
         shader.setMat4("model", jeep.getBackLeftWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(jeep.getBackLeftWheelModelMatrix()))));
         wheel2Model->Draw(shader);
 
         shader.setMat4("model", jeep.getBackRightWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(jeep.getBackRightWheelModelMatrix()))));
         wheel2Model->Draw(shader);
     }
 }

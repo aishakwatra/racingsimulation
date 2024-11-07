@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "D:\\DT384\\racingsimulation\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Car.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Car.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\PBR\\pbr.fs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Shaders\\PBR\\pbr.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Racing Simulation.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Racing Simulation.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Car.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Car.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Car.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -70,11 +74,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Carconfig.h",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Carconfig.h",
               "RelativeDocumentMoniker": "Racing Simulation\\Carconfig.h",
@@ -83,18 +87,17 @@
               "ViewState": "AQIAAAAAAAAAAAAAAAAAABYAAAAeAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-10-17T02:55:36.101Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "Car.cpp",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Car.cpp",
               "RelativeDocumentMoniker": "Racing Simulation\\Car.cpp",
               "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Car.cpp",
               "RelativeToolTip": "Racing Simulation\\Car.cpp",
-              "ViewState": "AQIAAIAAAAAAAAAAAAAAAIUAAAAAAAAA",
+              "ViewState": "AQIAALkAAAAAAAAAAAAAAIUAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-10-17T02:55:36.096Z",
               "IsPinned": true,
@@ -102,7 +105,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Car.h",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Car.h",
               "RelativeDocumentMoniker": "Racing Simulation\\Car.h",
@@ -111,12 +114,11 @@
               "ViewState": "AQIAAA0AAAAAAAAAAADwvyEAAAARAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-10-17T02:55:36.098Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "camera.h",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\camera.h",
               "RelativeDocumentMoniker": "Racing Simulation\\camera.h",
@@ -125,8 +127,7 @@
               "ViewState": "AQIAAC4AAAAAAAAAAAAAwG0AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-10-17T02:55:36.099Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
@@ -136,10 +137,23 @@
               "RelativeDocumentMoniker": "Racing Simulation\\Racing Simulation.cpp",
               "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Racing Simulation.cpp",
               "RelativeToolTip": "Racing Simulation\\Racing Simulation.cpp",
-              "ViewState": "AQIAAGABAAAAAAAAAADwv2QBAAAjAAAA",
+              "ViewState": "AQIAAG8AAAAAAAAAAAAYwG4AAAACAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-10-17T02:55:35.941Z",
               "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "pbr.fs",
+              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\PBR\\pbr.fs",
+              "RelativeDocumentMoniker": "Racing Simulation\\Shaders\\PBR\\pbr.fs",
+              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\PBR\\pbr.fs",
+              "RelativeToolTip": "Racing Simulation\\Shaders\\PBR\\pbr.fs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABcAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-11-07T07:44:48.174Z",
               "EditorCaption": ""
             },
             {
@@ -148,7 +162,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "CollisionChecker.cpp",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\CollisionChecker.cpp",
               "RelativeDocumentMoniker": "Racing Simulation\\CollisionChecker.cpp",
@@ -160,7 +174,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "Wheel.cpp",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Wheel.cpp",
               "RelativeDocumentMoniker": "Racing Simulation\\Wheel.cpp",
@@ -172,7 +186,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "Wheel.h",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Wheel.h",
               "RelativeDocumentMoniker": "Racing Simulation\\Wheel.h",
@@ -184,7 +198,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "shadow_dept.vs",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\shadow_dept.vs",
               "RelativeDocumentMoniker": "Racing Simulation\\shadow_dept.vs",
@@ -196,7 +210,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "shadow_dept.fs",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\shadow_dept.fs",
               "RelativeDocumentMoniker": "Racing Simulation\\shadow_dept.fs",
@@ -208,7 +222,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "CollisionChecker.h",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\CollisionChecker.h",
               "RelativeDocumentMoniker": "Racing Simulation\\CollisionChecker.h",
@@ -220,7 +234,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "model_loading.vs",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.vs",
               "RelativeDocumentMoniker": "Racing Simulation\\Shaders\\model\\model_loading.vs",
@@ -232,7 +246,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "model_loading.fs",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.fs",
               "RelativeDocumentMoniker": "Racing Simulation\\Shaders\\model\\model_loading.fs",
@@ -244,7 +258,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "model.h",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\model.h",
               "RelativeDocumentMoniker": "Racing Simulation\\model.h",
@@ -256,7 +270,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "mesh.h",
               "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\mesh.h",
               "RelativeDocumentMoniker": "Racing Simulation\\mesh.h",

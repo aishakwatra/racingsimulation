@@ -1,18 +1,40 @@
-﻿  Car.cpp
-C:\Users\orangeduck\Documents\Capt\racingsimulation\Racing Simulation\Car.cpp(175,29): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-glfw3.lib(init.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(init.obj)' or at ''; linking object as if no debug info
-glfw3.lib(window.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(window.obj)' or at ''; linking object as if no debug info
-glfw3.lib(input.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(input.obj)' or at ''; linking object as if no debug info
-glfw3.lib(context.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(context.obj)' or at ''; linking object as if no debug info
-glfw3.lib(win32_init.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(win32_init.obj)' or at ''; linking object as if no debug info
-glfw3.lib(win32_monitor.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(win32_monitor.obj)' or at ''; linking object as if no debug info
-glfw3.lib(win32_time.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(win32_time.obj)' or at ''; linking object as if no debug info
-glfw3.lib(win32_thread.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(win32_thread.obj)' or at ''; linking object as if no debug info
-glfw3.lib(monitor.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(monitor.obj)' or at ''; linking object as if no debug info
-glfw3.lib(vulkan.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(vulkan.obj)' or at ''; linking object as if no debug info
-glfw3.lib(win32_window.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(win32_window.obj)' or at ''; linking object as if no debug info
-glfw3.lib(win32_joystick.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(win32_joystick.obj)' or at ''; linking object as if no debug info
-glfw3.lib(wgl_context.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(wgl_context.obj)' or at ''; linking object as if no debug info
-glfw3.lib(egl_context.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(egl_context.obj)' or at ''; linking object as if no debug info
-glfw3.lib(osmesa_context.obj) : warning LNK4099: PDB '' was not found with 'glfw3.lib(osmesa_context.obj)' or at ''; linking object as if no debug info
-  Racing Simulation.vcxproj -> C:\Users\orangeduck\Documents\Capt\racingsimulation\x64\Debug\Racing Simulation.exe
+﻿  Racing Simulation.cpp
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(763,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(764,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(765,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(766,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(793,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(794,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(807,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(832,17): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(906,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(906,39): warning C4244:         with
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(906,39): warning C4244:         [
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(906,39): warning C4244:             T=float
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(906,39): warning C4244:         ]
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(907,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(907,39): warning C4244:         with
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(907,39): warning C4244:         [
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(907,39): warning C4244:             T=float
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(907,39): warning C4244:         ]
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(908,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(908,39): warning C4244:         with
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(908,39): warning C4244:         [
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(908,39): warning C4244:             T=float
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(908,39): warning C4244:         ]
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(910,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(910,39): warning C4244:         with
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(910,39): warning C4244:         [
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(910,39): warning C4244:             T=float
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(910,39): warning C4244:         ]
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(911,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(911,39): warning C4244:         with
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(911,39): warning C4244:         [
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(911,39): warning C4244:             T=float
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(911,39): warning C4244:         ]
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(912,39): warning C4244: '=': conversion from 'T' to 'int', possible loss of data
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(912,39): warning C4244:         with
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(912,39): warning C4244:         [
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(912,39): warning C4244:             T=float
+D:\DT384\racingsimulation\Racing Simulation\Racing Simulation.cpp(912,39): warning C4244:         ]
+  Racing Simulation.vcxproj -> D:\DT384\racingsimulation\x64\Debug\Racing Simulation.exe
