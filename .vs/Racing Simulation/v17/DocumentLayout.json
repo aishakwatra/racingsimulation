@@ -1,66 +1,78 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\DT384\\racingsimulation\\",
+  "WorkspaceRootPath": "D:\\Capt\\racingsimulation\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Car.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Car.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Racing Simulation.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Racing Simulation.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Car.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Car.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Carconfig.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Carconfig.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\CollisionChecker.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\CollisionChecker.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Wheel.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Wheel.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Wheel.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Wheel.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.fs||{3B902123-F8A7-4915-9F01-361F908088D0}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Shaders\\model\\model_loading.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.vs||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Shaders\\model\\model_loading.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\shadow_dept.vs||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\shadow_dept.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\shadow_dept.fs||{8A5AA6CF-46E3-4520-A70A-7393D15233E9}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\shadow_dept.fs||{8A5AA6CF-46E3-4520-A70A-7393D15233E9}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\CollisionChecker.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\CollisionChecker.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\model.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\model.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\model.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\DT384\\racingsimulation\\Racing Simulation\\mesh.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\mesh.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\mesh.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Racing Simulation.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Racing Simulation.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Car.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Car.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Car.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Car.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Carconfig.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Carconfig.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\shader_m.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\shader_m.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Skybox.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Skybox.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Skybox.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Skybox.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\SoundManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\SoundManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\CollisionChecker.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\CollisionChecker.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\CollisionChecker.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\CollisionChecker.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Wheel.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Wheel.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Wheel.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Wheel.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.fs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Shaders\\model\\model_loading.fs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|D:\\Capt\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.vs||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{4D5B287D-62B0-4417-87C9-FF0572F7BB84}|Racing Simulation\\Racing Simulation.vcxproj|solutionrelative:Racing Simulation\\Shaders\\model\\model_loading.vs||{8B382828-6202-11D1-8870-0000F87579D2}"
     }
   ],
   "DocumentGroupContainers": [
@@ -70,17 +82,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "Carconfig.h",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Carconfig.h",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Carconfig.h",
               "RelativeDocumentMoniker": "Racing Simulation\\Carconfig.h",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Carconfig.h",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Carconfig.h",
               "RelativeToolTip": "Racing Simulation\\Carconfig.h",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABYAAAAeAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAwAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-10-17T02:55:36.101Z",
               "IsPinned": true,
@@ -88,13 +100,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "Car.cpp",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Car.cpp",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Car.cpp",
               "RelativeDocumentMoniker": "Racing Simulation\\Car.cpp",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Car.cpp",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Car.cpp",
               "RelativeToolTip": "Racing Simulation\\Car.cpp",
-              "ViewState": "AQIAAIAAAAAAAAAAAAAAAIUAAAAAAAAA",
+              "ViewState": "AQIAAN4AAAAAAAAAAAAAAO8AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-10-17T02:55:36.096Z",
               "IsPinned": true,
@@ -102,27 +114,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Car.h",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Car.h",
-              "RelativeDocumentMoniker": "Racing Simulation\\Car.h",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Car.h",
-              "RelativeToolTip": "Racing Simulation\\Car.h",
-              "ViewState": "AQIAAA0AAAAAAAAAAADwvyEAAAARAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-17T02:55:36.098Z",
-              "IsPinned": true,
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "camera.h",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\camera.h",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\camera.h",
               "RelativeDocumentMoniker": "Racing Simulation\\camera.h",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\camera.h",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\camera.h",
               "RelativeToolTip": "Racing Simulation\\camera.h",
-              "ViewState": "AQIAAC4AAAAAAAAAAAAAwG0AAAAAAAAA",
+              "ViewState": "AQIAAIQAAAAAAAAAAAAAAKUAAAArAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-10-17T02:55:36.099Z",
               "IsPinned": true,
@@ -130,13 +128,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Racing Simulation.cpp",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Racing Simulation.cpp",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Racing Simulation.cpp",
               "RelativeDocumentMoniker": "Racing Simulation\\Racing Simulation.cpp",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Racing Simulation.cpp",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Racing Simulation.cpp",
               "RelativeToolTip": "Racing Simulation\\Racing Simulation.cpp",
-              "ViewState": "AQIAAGABAAAAAAAAAADwv2QBAAAjAAAA",
+              "ViewState": "AQIAAN4AAAAAAAAAAAAAANUAAAAPAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-10-17T02:55:35.941Z",
               "IsPinned": true,
@@ -144,39 +142,149 @@
             },
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "CollisionChecker.cpp",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\CollisionChecker.cpp",
-              "RelativeDocumentMoniker": "Racing Simulation\\CollisionChecker.cpp",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\CollisionChecker.cpp",
-              "RelativeToolTip": "Racing Simulation\\CollisionChecker.cpp",
-              "ViewState": "AQIAACQAAAAAAAAAAAAAwDMAAAAfAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-10-17T07:15:58.864Z"
+              "DocumentIndex": 0,
+              "Title": "model.h",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\model.h",
+              "RelativeDocumentMoniker": "Racing Simulation\\model.h",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\model.h",
+              "RelativeToolTip": "Racing Simulation\\model.h",
+              "ViewState": "AQIAACQAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-10-17T03:50:04.225Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Wheel.cpp",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Wheel.cpp",
-              "RelativeDocumentMoniker": "Racing Simulation\\Wheel.cpp",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Wheel.cpp",
-              "RelativeToolTip": "Racing Simulation\\Wheel.cpp",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAiAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-10-17T02:55:36.1Z"
+              "DocumentIndex": 1,
+              "Title": "mesh.h",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\mesh.h",
+              "RelativeDocumentMoniker": "Racing Simulation\\mesh.h",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\mesh.h",
+              "RelativeToolTip": "Racing Simulation\\mesh.h",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAAKYAAABsAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-10-17T03:51:09.673Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 7,
+              "Title": "shader_m.h",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\shader_m.h",
+              "RelativeDocumentMoniker": "Racing Simulation\\shader_m.h",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\shader_m.h",
+              "RelativeToolTip": "Racing Simulation\\shader_m.h",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAKgAAAAGAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-11-07T15:55:28.548Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Car.h",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Car.h",
+              "RelativeDocumentMoniker": "Racing Simulation\\Car.h",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Car.h",
+              "RelativeToolTip": "Racing Simulation\\Car.h",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAUAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-10-17T02:55:36.098Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Skybox.cpp",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Skybox.cpp",
+              "RelativeDocumentMoniker": "Racing Simulation\\Skybox.cpp",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Skybox.cpp",
+              "RelativeToolTip": "Racing Simulation\\Skybox.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-11-07T16:41:17.121Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Skybox.h",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Skybox.h",
+              "RelativeDocumentMoniker": "Racing Simulation\\Skybox.h",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Skybox.h",
+              "RelativeToolTip": "Racing Simulation\\Skybox.h",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABYAAAACAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-11-07T16:41:00.011Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "SoundManager.cpp",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\SoundManager.cpp",
+              "RelativeDocumentMoniker": "Racing Simulation\\SoundManager.cpp",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\SoundManager.cpp",
+              "RelativeToolTip": "Racing Simulation\\SoundManager.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-11-07T16:40:59.267Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Source.cpp",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Source.cpp",
+              "RelativeDocumentMoniker": "Racing Simulation\\Source.cpp",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Source.cpp",
+              "RelativeToolTip": "Racing Simulation\\Source.cpp",
+              "ViewState": "AQIAAGABAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-11-07T16:15:54.49Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "CollisionChecker.cpp",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\CollisionChecker.cpp",
+              "RelativeDocumentMoniker": "Racing Simulation\\CollisionChecker.cpp",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\CollisionChecker.cpp",
+              "RelativeToolTip": "Racing Simulation\\CollisionChecker.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-10-17T07:15:58.864Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "CollisionChecker.h",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\CollisionChecker.h",
+              "RelativeDocumentMoniker": "Racing Simulation\\CollisionChecker.h",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\CollisionChecker.h",
+              "RelativeToolTip": "Racing Simulation\\CollisionChecker.h",
+              "ViewState": "AQIAAC0AAAAAAAAAAADwv1YAAAAGAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-10-17T08:58:24.713Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
               "Title": "Wheel.h",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Wheel.h",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Wheel.h",
               "RelativeDocumentMoniker": "Racing Simulation\\Wheel.h",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Wheel.h",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Wheel.h",
               "RelativeToolTip": "Racing Simulation\\Wheel.h",
               "ViewState": "AQIAAAMAAAAAAAAAAAAAAAgAAAAaAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
@@ -184,47 +292,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "shadow_dept.vs",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\shadow_dept.vs",
-              "RelativeDocumentMoniker": "Racing Simulation\\shadow_dept.vs",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\shadow_dept.vs",
-              "RelativeToolTip": "Racing Simulation\\shadow_dept.vs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-10-23T13:26:41.968Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "shadow_dept.fs",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\shadow_dept.fs",
-              "RelativeDocumentMoniker": "Racing Simulation\\shadow_dept.fs",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\shadow_dept.fs",
-              "RelativeToolTip": "Racing Simulation\\shadow_dept.fs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-10-23T13:26:41.283Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "CollisionChecker.h",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\CollisionChecker.h",
-              "RelativeDocumentMoniker": "Racing Simulation\\CollisionChecker.h",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\CollisionChecker.h",
-              "RelativeToolTip": "Racing Simulation\\CollisionChecker.h",
-              "ViewState": "AQIAAAoAAAAAAAAAAAAcwBsAAAAQAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-17T08:58:24.713Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 17,
               "Title": "model_loading.vs",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.vs",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.vs",
               "RelativeDocumentMoniker": "Racing Simulation\\Shaders\\model\\model_loading.vs",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.vs",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.vs",
               "RelativeToolTip": "Racing Simulation\\Shaders\\model\\model_loading.vs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
@@ -232,11 +304,11 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 16,
               "Title": "model_loading.fs",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.fs",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.fs",
               "RelativeDocumentMoniker": "Racing Simulation\\Shaders\\model\\model_loading.fs",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.fs",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Shaders\\model\\model_loading.fs",
               "RelativeToolTip": "Racing Simulation\\Shaders\\model\\model_loading.fs",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
@@ -244,27 +316,15 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "model.h",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\model.h",
-              "RelativeDocumentMoniker": "Racing Simulation\\model.h",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\model.h",
-              "RelativeToolTip": "Racing Simulation\\model.h",
-              "ViewState": "AgIAABMAAAAAAAAAAAAswCsAAAAoAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-17T03:50:04.225Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 14,
-              "Title": "mesh.h",
-              "DocumentMoniker": "D:\\DT384\\racingsimulation\\Racing Simulation\\mesh.h",
-              "RelativeDocumentMoniker": "Racing Simulation\\mesh.h",
-              "ToolTip": "D:\\DT384\\racingsimulation\\Racing Simulation\\mesh.h",
-              "RelativeToolTip": "Racing Simulation\\mesh.h",
-              "ViewState": "AgIAAIQAAAAAAAAAAAAqwH4AAAAhAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-17T03:51:09.673Z"
+              "Title": "Wheel.cpp",
+              "DocumentMoniker": "D:\\Capt\\racingsimulation\\Racing Simulation\\Wheel.cpp",
+              "RelativeDocumentMoniker": "Racing Simulation\\Wheel.cpp",
+              "ToolTip": "D:\\Capt\\racingsimulation\\Racing Simulation\\Wheel.cpp",
+              "RelativeToolTip": "Racing Simulation\\Wheel.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAiAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-10-17T02:55:36.1Z"
             }
           ]
         }

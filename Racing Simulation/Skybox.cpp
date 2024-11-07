@@ -110,4 +110,3 @@ void Skybox::draw(glm::mat4 view, glm::mat4 projection) {
     glBindVertexArray(0);
     glDepthFunc(GL_LESS); // Restore depth function
 }
-

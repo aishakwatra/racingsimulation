@@ -18,7 +18,7 @@ const float pitchJumpThreshold = 0.1f;
 float verticalVelocityFactor = 0.1f;
 
 Car::Car(const CarConfig& config)
-    : position(config.position),startPosition(config.startPosition), bodyOffset(config.bodyOffset), bodyScale(config.bodyScale), direction(config.direction), rotation(config.rotation),
+    : position(config.position), startPosition(config.startPosition), bodyOffset(config.bodyOffset), bodyScale(config.bodyScale), direction(config.direction), rotation(config.rotation),
     speed(config.speed), maxSpeed(config.maxSpeed), acceleration(config.acceleration), maxSteeringAngleAtMaxSpeed(config.maxSteeringAngleAtMaxSpeed),
     maxSteeringAngleAtZeroSpeed(config.maxSteeringAngleAtZeroSpeed), turnSharpnessFactor(config.turnSharpnessFactor),
     brakingForce(config.brakingForce), wheelScale(config.wheelScale), frontLeftWheel(config.frontLeftWheelOffset, true),
@@ -48,7 +48,7 @@ void Car::applyConfig(const CarConfig& config) {
     backRightWheel.setOffset(config.backRightWheelOffset);
 
     initializeModelMatrix();
-    
+
 }
 
 void Car::activate() {
@@ -81,9 +81,9 @@ void Car::resetRotation() {
 }
 
 bool Car::isActive() const {
-	return active;
+    return active;
 }
-void Car::setCollisionGrid(const std::vector<std::vector<Triangle>>& gridCells,const std::vector<std::vector<Triangle>>& gridCellsCollision, float gridSize, int gridWidth, int gridHeight) {
+void Car::setCollisionGrid(const std::vector<std::vector<Triangle>>& gridCells, const std::vector<std::vector<Triangle>>& gridCellsCollision, float gridSize, int gridWidth, int gridHeight) {
     collisionChecker.setGrid(gridCells, gridCellsCollision, gridSize, gridWidth, gridHeight);
 }
 
@@ -93,13 +93,13 @@ void Car::update(float deltaTime) {
         rotateForSelection(deltaTime);
     }
 
-    if (!active ) return;  // Skip updating if the car is not active or in selection mode
+    if (!active) return;  // Skip updating if the car is not active or in selection mode
 
-   
+
     updatePositionAndDirection(deltaTime);
     updateModelMatrix(deltaTime);
     updateWheelRotations(deltaTime);
-    
+
 }
 
 void Car::initializeModelMatrix() {
@@ -112,7 +112,7 @@ void Car::initializeModelMatrix() {
     frontRightWheel.updateModelMatrix(modelMatrix, wheelScale, true);
     backLeftWheel.updateModelMatrix(modelMatrix, wheelScale, false);
     backRightWheel.updateModelMatrix(modelMatrix, wheelScale, false);
-    
+
 }
 
 void Car::updateModelMatrix(float deltaTime) {
@@ -164,7 +164,7 @@ void Car::updateModelMatrix(float deltaTime) {
     float rollAngleTarget = glm::atan(rollHeightDifference / glm::length(frontRightWheelIntersection - frontLeftWheelIntersection));
 
     float orientationLerpFactor = glm::mix(0.2f, 0.05f, glm::clamp(speed / maxSpeed, 0.0f, 1.0f));
-   
+
 
     float targetY = (frontLeftWheelIntersection.y + frontRightWheelIntersection.y + backLeftWheelIntersection.y + backRightWheelIntersection.y) / 4.0f + 1.5f;
 
@@ -180,11 +180,11 @@ void Car::updateModelMatrix(float deltaTime) {
         }
     }
     else {
-       
+
         position.y = targetY;
 
         currentPitch = glm::mix(currentPitch, pitchAngleTarget, orientationLerpFactor);
-       currentRoll = glm::mix(currentRoll, rollAngleTarget, orientationLerpFactor);
+        currentRoll = glm::mix(currentRoll, rollAngleTarget, orientationLerpFactor);
 
         if (speed > jumpThresholdSpeed && pitchAngleTarget > pitchJumpThreshold) {
             isAirborne = true;
@@ -253,7 +253,7 @@ float Car::getMaxSpeed() const {
 
 void Car::accelerate(float deltaTime) {
     if (!isAirborne) {
-     // Only allow acceleration if the car is on the ground
+        // Only allow acceleration if the car is on the ground
         speed += acceleration * deltaTime;
         if (speed > maxSpeed) {
             speed = maxSpeed;
@@ -270,7 +270,7 @@ void Car::brake(float deltaTime) {
             speed = -maxSpeed / 2.0f;  // Limit reverse speed
         }
     }
-    
+
 }
 
 void Car::slowDown(float deltaTime) {

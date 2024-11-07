@@ -64,18 +64,15 @@ float lastFrame = 0.0f;
 glm::vec3 rayOrigin;
 glm::vec3 rayDirection = glm::vec3(0.0f, -1.0f, 0.0f);
 
-glm::vec3 lightPos(-2.0f, 40.0f, -1.0f);
-
-
 //track divided into 15x15 grid with each block being 20x20 in size
 int gridWidth = 8;
 int gridHeight = 8;
 float gridSize = 0.0f;
 
 CarConfig chevConfig;
-CarConfig jeepConfig;
+CarConfig cadillacConfig;
 Car chev(chevConfig);
-Car jeep(jeepConfig);
+Car cadillac(cadillacConfig);
 Car* selectedCar = &chev;
 
 std::vector<std::vector<Triangle>> gridCells;
@@ -217,16 +214,12 @@ int main()
     trackVisual = new Model("Objects/racetrack/track3.obj");
     carModel = new Model("Objects/chev-nascar/body.obj");
     wheelModel = new Model("Objects/chev-nascar/wheel1.obj");
-    car2Model = new Model("Objects/jeep/car.obj");
-    wheel2Model = new Model("Objects/jeep/wheel.obj");
+    car2Model = new Model("Objects/pbrCar/CarBody2.obj");
+    wheel2Model = new Model("Objects/pbrCar/carwheel.obj");
     //Model carModel("Objects/jeep/car.obj");
     //Model wheelModel("Objects/jeep/wheel.obj");
     //Model carModel("Objects/chev-nascar/body.obj");
     //Model wheelModel("Objects/chev-nascar/wheel1.obj");
-    Model carModel("Objects/pbrCar/CarBody2.obj");
-    Model wheelModel("Objects/pbrCar/carwheel.obj");
-
-    //2D UI initializing
 
     unsigned int uiTexture = loadTexture("Textures/UI/square.png");
     glm::mat4 uiProjection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
@@ -273,7 +266,7 @@ int main()
     // ---------------------------------
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrComponents;
-    float* data = stbi_loadf("Textures/track_hdr.hdr", & width, & height, & nrComponents, 0);
+    float* data = stbi_loadf("Textures/track_hdr.hdr", &width, &height, &nrComponents, 0);
     unsigned int hdrTexture;
     if (data)
     {
@@ -482,68 +475,45 @@ int main()
     chevConfig.backRightWheelOffset = glm::vec3(-0.58f, -1.2f, -0.80f);
     chevConfig.backLeftWheelOffset = glm::vec3(0.58f, -1.2f, -0.80f);
 
-    jeepConfig.position = glm::vec3(3.0f, 10.0f,-57.0f);
-    jeepConfig.startPosition = glm::vec3(2.5f, 0.0f, -1.5f);
-    jeepConfig.bodyOffset = glm::vec3(0.0f, -0.3f, 0.0f);
-    jeepConfig.bodyScale = glm::vec3(1.0f, 1.0f, 1.0f);
-    jeepConfig.wheelScale = glm::vec3(1.5f, 1.5f, 1.5f);
-    chevConfig.carWeight = 2000.0f;
-    jeepConfig.maxSpeed = 100.0f;
-    jeepConfig.acceleration = 10.0f;
-    jeepConfig.brakingForce = 30.0f;
-    jeepConfig.frontRightWheelOffset = glm::vec3(-0.55f, -1.0f, 1.0f);
-    jeepConfig.frontLeftWheelOffset = glm::vec3(0.55f, -1.0f, 1.0f);
-    jeepConfig.backRightWheelOffset = glm::vec3(-0.55f, -1.0f, -0.70f);
-    jeepConfig.backLeftWheelOffset = glm::vec3(0.55f, -1.0f, -0.70f);
+    cadillacConfig.position = glm::vec3(3.0f, 10.0f,-57.0f);
+    cadillacConfig.startPosition = glm::vec3(2.5f, 0.0f, -1.5f);
+    cadillacConfig.bodyOffset = glm::vec3(0.0f, -0.3f, 0.0f);
+    cadillacConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
+    cadillacConfig.wheelScale = glm::vec3(0.5f, 0.5f, 0.5f);
+    cadillacConfig.carWeight = 2000.0f;
+    cadillacConfig.maxSpeed = 100.0f;
+    cadillacConfig.acceleration = 10.0f;
+    cadillacConfig.brakingForce = 30.0f;
+    cadillacConfig.frontRightWheelOffset = glm::vec3(-0.45f, -0.6f, 0.80f);
+    cadillacConfig.frontLeftWheelOffset = glm::vec3(0.45f, -0.6f, 0.80f);
+    cadillacConfig.backRightWheelOffset = glm::vec3(-0.45f, -0.6f, -1.00f);
+    cadillacConfig.backLeftWheelOffset = glm::vec3(0.45f, -0.6f, -1.00f);
 
     gridSize = calculateOptimalGridSize(trackModel, gridHeight);
 
     chev.applyConfig(chevConfig);
-    jeep.applyConfig(jeepConfig);
+    cadillac.applyConfig(cadillacConfig);
    
     selectedCar = &chev;
     camera.LookAtCar(chev.getPosition() - glm::vec3(0, 1.8f, 0));
 
     chev.startSelectionRotation();
-    jeep.startSelectionRotation();
+    cadillac.startSelectionRotation();
   
 
     assignTrianglesToGrid(trackModel, gridSize, gridWidth, gridHeight, gridCells);
     assignTrianglesToGrid(trackCollisionModel, gridSize, gridWidth, gridHeight, gridCellsCollision);
     chev.setCollisionGrid(gridCells,gridCellsCollision, gridSize, gridWidth, gridHeight);
-    jeep.setCollisionGrid(gridCells, gridCellsCollision, gridSize, gridWidth, gridHeight);
+    cadillac.setCollisionGrid(gridCells, gridCellsCollision, gridSize, gridWidth, gridHeight);
     soundManager.preloadSound("accelerate", "Sounds/accelerate_sound2.wav");
 
-    const unsigned int SHADOW_WIDTH = 1000, SHADOW_HEIGHT = 1000;
-    unsigned int depthMapFBO;
-    glGenFramebuffers(1, &depthMapFBO);
-    // create depth texture
-    unsigned int depthMap;
-    glGenTextures(1, &depthMap);
-    glBindTexture(GL_TEXTURE_2D, depthMap);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    // attach depth texture as FBO's depth buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-    glDrawBuffer(GL_NONE);
-    glReadBuffer(GL_NONE);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    ourShader.use();
-    ourShader.setInt("diffuseTexture", 0);
-    ourShader.setInt("shadowMap", 1);
     pbrShader.use();
-
     for (int i = 0; i < 4; ++i) {
         pbrShader.setVec3("lightPositions[" + std::to_string(i) + "]", lightPositions[i]);
         pbrShader.setVec3("lightColors[" + std::to_string(i) + "]", lightColors[i]);
     }
+    pbrShader.setVec3("camPos", camera.Position);
+
 
     int scrWidth, scrHeight;
     glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
@@ -564,68 +534,26 @@ int main()
         // input
         // -----
         processInput(window);
-
        
         camera.FollowCar(selectedCar->getPosition(), selectedCar->getDirection(), selectedCar->getSpeed(), selectedCar->getMaxSpeed(), selectedCar->getSteeringAngle(), deltaTime);
         camera.CarPosition = selectedCar->getPosition();
+        camera.Update(deltaTime);
         // render
         // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
-
-   	    // 1. render depth of scene to texture (from light's perspective)
-        glm::mat4 lightProjection, lightView;
-        glm::mat4 lightSpaceMatrix;
-        
-        //lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
-        lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
-        lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-        lightSpaceMatrix = lightProjection * lightView;
-        // render scene from light's point of view
-        depthShader.use();
-        depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-        glClear(GL_DEPTH_BUFFER_BIT);
-        glActiveTexture(GL_TEXTURE0);
-        renderScene(depthShader);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        // reset viewport
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ourShader.use();
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
         
         pbrShader.use();
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, near_plane, far_plane);
         glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
-        ourShader.setVec3("viewPos", camera.Position);
-        ourShader.setVec3("lightPosition", lightPos);
-        renderScene(ourShader);
-        camera.Update(deltaTime);
-        if (!gameStarted) {
-            chev.update(deltaTime);
-            jeep.update(deltaTime);
-            
-        }
-        else {
-            selectedCar->update(deltaTime); // Only update the selected car
-        }
         pbrShader.setMat4("projection", projection);
         pbrShader.setMat4("view", view);
         pbrShader.setVec3("camPos", camera.Position);
 
         //track
-      
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
         glActiveTexture(GL_TEXTURE1);
@@ -633,62 +561,28 @@ int main()
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
 
-        
-        glm::mat4 model = glm::mat4(1.0f);
-        pbrShader.setMat4("model", model);
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-        trackModel.Draw(pbrShader);
 
-        //car body
-        car.updatePositionAndDirection(deltaTime);
-        car.updateModelMatrix();  // Update the car and wheel transformations
-        pbrShader.setMat4("model", car.getModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getModelMatrix()))));
-        carModel.Draw(pbrShader);
+        renderScene(pbrShader);
 
-        pbrShader.setMat4("model", car.getFrontLeftWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontLeftWheelModelMatrix()))));
-        wheelModel.Draw(pbrShader);
+        //Update car position and direction
+        selectedCar->updatePositionAndDirection(deltaTime);
+        selectedCar->updateModelMatrix(deltaTime);  // Update the car and wheel transformations
 
-        pbrShader.setMat4("model", car.getFrontRightWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontRightWheelModelMatrix()))));
-        wheelModel.Draw(pbrShader);
+        if (!gameStarted) {
+            chev.update(deltaTime);
+            cadillac.update(deltaTime);
 
-        pbrShader.setMat4("model", car.getBackLeftWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontRightWheelModelMatrix()))));
-        wheelModel.Draw(pbrShader);
+        }
+        else {
+            selectedCar->update(deltaTime); // Only update the selected car
+        }
 
-        pbrShader.setMat4("model", car.getBackRightWheelModelMatrix());
-        pbrShader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(car.getFrontRightWheelModelMatrix()))));
-        wheelModel.Draw(pbrShader);
-        
+        //render skybox
         skybox.draw(view, projection);
 
-        handleCarSound(soundManager, chev);
-        handleCarSound(soundManager, jeep);
-        // render skybox (render as last to prevent overdraw)
-        /*backgroundShader.use();
-        backgroundShader.setMat4("view", glm::mat4(1.0f));
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
-        renderCube();*/
-
-        ////RENDER 2D UI
-        //float width = 100.0f;  // Width of the UI element
-        //float height = 75.0f; // Height of the UI element
-
-        //uiShader.use();
-        //model = glm::mat4(1.0f);     
-        //model = glm::translate(model, glm::vec3(2.0, -2.0, 0.0f));
-        //model = glm::scale(model, glm::vec3(width, height, 1.0f));
-        //uiShader.setMat4("model", model);
-
-        //glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_2D, uiTexture);
-        //renderUIQuad();
-
+    
         // Update timer
-        timer.update(car.getPosition());
+        timer.update(selectedCar->getPosition());
 
         // Render the timer text
         std::string timerText = timer.getFormattedTime();
@@ -696,7 +590,8 @@ int main()
         RenderText(textShader, timerText, 10.0f, static_cast<float>(SCR_HEIGHT) - 50.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
         RenderText(textShader, bestLapTimeText, 10.0f, static_cast<float>(SCR_HEIGHT) - 80.0f, 0.8f, glm::vec3(0.0f, 1.0f, 0.0f));
 
-        handleCarSound(soundManager, car);
+        handleCarSound(soundManager, chev);
+        handleCarSound(soundManager, cadillac);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -704,9 +599,6 @@ int main()
         glfwPollEvents();
     }
 
-    delete trackVisual;
-    delete carModel;
-    delete wheelModel;
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -716,45 +608,55 @@ int main()
 void renderScene(Shader& shader) {
     // Track
     glm::mat4 model = glm::mat4(1.0f);
-    shader.setMat4("model", model);
+    shader.setMat4("model", glm::transpose(glm::inverse(glm::mat3(model))));
     trackVisual->Draw(shader);
 
     // Render cars based on game state and activation
     if (!gameStarted || (gameStarted && chev.isActive())) {
         // Draw the Chevrolet car body
         shader.setMat4("model", chev.getModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(chev.getModelMatrix()))));
         carModel->Draw(shader);  // Assuming carModel is the model for Chevrolet
 
         // Draw the Chevrolet wheels
         shader.setMat4("model", chev.getFrontLeftWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(chev.getFrontLeftWheelModelMatrix()))));
         wheelModel->Draw(shader);  // Assuming wheelModel is shared or change accordingly
 
         shader.setMat4("model", chev.getFrontRightWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(chev.getFrontRightWheelModelMatrix()))));
         wheelModel->Draw(shader);
 
         shader.setMat4("model", chev.getBackLeftWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(chev.getBackLeftWheelModelMatrix()))));
         wheelModel->Draw(shader);
 
         shader.setMat4("model", chev.getBackRightWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(chev.getBackRightWheelModelMatrix()))));
         wheelModel->Draw(shader);
     }
 
-    if (!gameStarted || (gameStarted && jeep.isActive())) {
+    if (!gameStarted || (gameStarted && cadillac.isActive())) {
         // Draw the Jeep car body
-        shader.setMat4("model", jeep.getModelMatrix());
+        shader.setMat4("model", cadillac.getModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(cadillac.getModelMatrix()))));
         car2Model->Draw(shader);  // Assuming car2Model is the model for Jeep
 
         // Draw the Jeep wheels
-        shader.setMat4("model", jeep.getFrontLeftWheelModelMatrix());
+        shader.setMat4("model", cadillac.getFrontLeftWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(cadillac.getFrontLeftWheelModelMatrix()))));
         wheel2Model->Draw(shader);  // Assuming wheel2Model is shared or change accordingly
 
-        shader.setMat4("model", jeep.getFrontRightWheelModelMatrix());
+        shader.setMat4("model", cadillac.getFrontRightWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(cadillac.getFrontRightWheelModelMatrix()))));
         wheel2Model->Draw(shader);
 
-        shader.setMat4("model", jeep.getBackLeftWheelModelMatrix());
+        shader.setMat4("model", cadillac.getBackLeftWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(cadillac.getBackLeftWheelModelMatrix()))));
         wheel2Model->Draw(shader);
 
-        shader.setMat4("model", jeep.getBackRightWheelModelMatrix());
+        shader.setMat4("model", cadillac.getBackRightWheelModelMatrix());
+        shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(cadillac.getBackRightWheelModelMatrix()))));
         wheel2Model->Draw(shader);
     }
 }
@@ -771,8 +673,8 @@ void processInput(GLFWwindow* window)
         camera.LookAtCar(chev.getPosition() - glm::vec3(0,1.0f,0));
     }
     else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS && !gameStarted) {
-        selectedCar = &jeep;
-        camera.LookAtCar(jeep.getPosition() - glm::vec3(0, 1.0f, 0));
+        selectedCar = &cadillac;
+        camera.LookAtCar(cadillac.getPosition() - glm::vec3(0, 1.0f, 0));
     }
 
     if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
@@ -781,8 +683,8 @@ void processInput(GLFWwindow* window)
         selectedCar->resetRotation();
         selectedCar->activate();
         if (selectedCar == &chev) {
-            jeep.stopSelectionRotation();
-            jeep.deactivate();
+            cadillac.stopSelectionRotation();
+            cadillac.deactivate();
         }
         else {
             chev.stopSelectionRotation();
@@ -823,12 +725,12 @@ void processInput(GLFWwindow* window)
 
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    static float lastX = SCR_WIDTH / 2.0;
-    static float lastY = SCR_HEIGHT / 2.0;
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // Reverse since y-coordinates range from bottom to top
-    lastX = xpos;
-    lastY = ypos;
+    static float mouse_lastX = SCR_WIDTH / 2.0;
+    static float mouse_lastY = SCR_HEIGHT / 2.0;
+    float xoffset = xpos - mouse_lastX;
+    float yoffset = mouse_lastY - ypos; // Reverse since y-coordinates range from bottom to top
+    mouse_lastX = xpos;
+    mouse_lastY = ypos;
 
     // Check if the left mouse button is being held down
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {

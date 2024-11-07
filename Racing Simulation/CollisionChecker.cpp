@@ -1,5 +1,6 @@
-#include "CollisionChecker.h"
 
+
+#include "CollisionChecker.h"
 
 // Custom Min and Max for float
 float customMin(float a, float b) {
@@ -19,7 +20,6 @@ int customMax(int a, int b) {
     return (a > b) ? a : b;
 }
 
-
 template <typename T>
 T clamp(T value, T minValue, T maxValue) {
     return std::max(minValue, std::min(value, maxValue));
@@ -28,7 +28,7 @@ T clamp(T value, T minValue, T maxValue) {
 
 CollisionChecker::CollisionChecker() : gridCells(nullptr), gridCellsCollision(nullptr) {}
 
-void CollisionChecker::setGrid(const std::vector<std::vector<Triangle>>& externalGridCells, const std::vector<std::vector<Triangle>>& externalGridCellsCollision,float gridSize, int gridWidth, int gridHeight) {
+void CollisionChecker::setGrid(const std::vector<std::vector<Triangle>>& externalGridCells, const std::vector<std::vector<Triangle>>& externalGridCellsCollision, float gridSize, int gridWidth, int gridHeight) {
     gridCells = &externalGridCells;  // Store pointer to the external grid
     gridCellsCollision = &externalGridCellsCollision;
     this->gridSize = gridSize;
@@ -85,12 +85,12 @@ bool CollisionChecker::checkTrackIntersectionWithGrid(const AABB& aabb) {
     for (int x = minGridX; x <= maxGridX; ++x) {
         for (int z = minGridZ; z <= maxGridZ; ++z) {
 
-            int cellIndex = z * gridWidth + x; 
+            int cellIndex = z * gridWidth + x;
 
             for (const Triangle& tri : (*gridCellsCollision)[cellIndex]) {
 
                 if (intersectAABBWithTriangle(aabb, tri)) {
-                    return true;  
+                    return true;
                 }
 
             }
@@ -129,7 +129,7 @@ bool CollisionChecker::intersectRayWithTriangle(glm::vec3 rayOrigin, glm::vec3 r
 }
 
 bool CollisionChecker::overlapOnAxis(const glm::vec3& aabbHalfSize, const glm::vec3& axis, const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2) {
-    
+
     // Ignore small axes to avoid numerical issues
     const float EPSILON = 1e-6f;
     if (glm::length(axis) < EPSILON) return true;
@@ -140,12 +140,8 @@ bool CollisionChecker::overlapOnAxis(const glm::vec3& aabbHalfSize, const glm::v
     float p2 = glm::dot(v2, axis);
 
     // Find the min and max projection values for the triangle
-    //float triMin = std::min({ p0, p1, p2 });
-    //float triMax = std::max({ p0, p1, p2 });
-
-    auto k = { 1.0f, 2.0f };
-    float triMin = std::min<float>(k);
-    float triMax = 0.0f;
+    float triMin = std::min({ p0, p1, p2 });
+    float triMax = std::max({ p0, p1, p2 });
 
     // Project the AABB onto the axis
     float r = aabbHalfSize.x * std::abs(axis.x) + aabbHalfSize.y * std::abs(axis.y) + aabbHalfSize.z * std::abs(axis.z);
@@ -198,4 +194,3 @@ bool CollisionChecker::intersectAABBWithTriangle(const AABB& aabb, const Triangl
 
     return true;
 }
-

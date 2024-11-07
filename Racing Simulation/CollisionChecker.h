@@ -65,7 +65,7 @@ public:
 
     CollisionChecker();
 
-    void setGrid(const std::vector<std::vector<Triangle>>& gridCells,const std::vector<std::vector<Triangle>>& gridCellsCollision, float gridSize, int gridWidth, int gridHeight);
+    void setGrid(const std::vector<std::vector<Triangle>>& gridCells, const std::vector<std::vector<Triangle>>& gridCellsCollision, float gridSize, int gridWidth, int gridHeight);
     bool checkTrackIntersectionWithGrid(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3& intersectionPoint);
     bool checkTrackIntersectionWithGrid(const AABB& aabb);
 
@@ -83,6 +83,5 @@ private:
     int gridHeight = 0;
 
 };
-
 
 #endif
