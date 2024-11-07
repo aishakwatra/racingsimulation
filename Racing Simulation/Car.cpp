@@ -121,12 +121,19 @@ void Car::updateModelMatrix(float deltaTime) {
     bool sideCollision = collisionChecker.checkTrackIntersectionWithGrid(sideCollisionAABB);
 
     if (sideCollision) {
+        
         glm::vec3 correctionDirection = (speed >= 0.0f) ? -direction : direction;
+
+        // Apply correction to position in the correct direction
         glm::vec3 correction = correctionDirection * 0.3f;
         position += correction;
+
+        // Halt the car's movement by setting speed to 0
         speed *= 0.5f;
+
     }
     else {
+        // Proceed to the next position if no collision occurs
         position = nextPosition;
     }
 

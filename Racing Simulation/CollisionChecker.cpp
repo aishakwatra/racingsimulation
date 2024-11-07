@@ -1,5 +1,6 @@
 #include "CollisionChecker.h"
 
+
 // Custom Min and Max for float
 float customMin(float a, float b) {
     return (a < b) ? a : b;
@@ -17,6 +18,7 @@ int customMin(int a, int b) {
 int customMax(int a, int b) {
     return (a > b) ? a : b;
 }
+
 
 template <typename T>
 T clamp(T value, T minValue, T maxValue) {
@@ -138,8 +140,12 @@ bool CollisionChecker::overlapOnAxis(const glm::vec3& aabbHalfSize, const glm::v
     float p2 = glm::dot(v2, axis);
 
     // Find the min and max projection values for the triangle
-    float triMin = std::min({ p0, p1, p2 });
-    float triMax = std::max({ p0, p1, p2 });
+    //float triMin = std::min({ p0, p1, p2 });
+    //float triMax = std::max({ p0, p1, p2 });
+
+    auto k = { 1.0f, 2.0f };
+    float triMin = std::min<float>(k);
+    float triMax = 0.0f;
 
     // Project the AABB onto the axis
     float r = aabbHalfSize.x * std::abs(axis.x) + aabbHalfSize.y * std::abs(axis.y) + aabbHalfSize.z * std::abs(axis.z);
