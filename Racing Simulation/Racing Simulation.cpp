@@ -512,7 +512,6 @@ int main()
         pbrShader.setVec3("lightPositions[" + std::to_string(i) + "]", lightPositions[i]);
         pbrShader.setVec3("lightColors[" + std::to_string(i) + "]", lightColors[i]);
     }
-    pbrShader.setVec3("camPos", camera.Position);
 
 
     int scrWidth, scrHeight;
@@ -613,6 +612,7 @@ void renderScene(Shader& shader) {
     // Track
     glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", glm::transpose(glm::inverse(glm::mat3(model))));
+    shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
     trackVisual->Draw(shader);
 
     // Render cars based on game state and activation
