@@ -506,6 +506,8 @@ int main()
     chev.setCollisionGrid(gridCells,gridCellsCollision, gridSize, gridWidth, gridHeight);
     cadillac.setCollisionGrid(gridCells, gridCellsCollision, gridSize, gridWidth, gridHeight);
     soundManager.preloadSound("accelerate", "Sounds/accelerate_sound2.wav");
+    soundManager.preloadSound("music", "Sounds/Plasma.wav");
+    soundManager.playSound("music", true);
 
     pbrShader.use();
     for (int i = 0; i < 4; ++i) {
