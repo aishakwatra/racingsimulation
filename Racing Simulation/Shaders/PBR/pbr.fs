@@ -114,7 +114,7 @@ void main()
     ao = (ao == 0.0) ? 1.0 : ao;
        
     // input lighting data
-    vec3 N = getNormalFromMap();
+    vec3 N = Normal;
     vec3 V = normalize(camPos - WorldPos);
     vec3 R = reflect(-V, N); 
 
