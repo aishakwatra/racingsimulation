@@ -210,7 +210,6 @@ int main()
     Model trackModel("Objects/racetrack/track.obj");
     Model trackCollisionModel("Objects/racetrack/trackCol.obj");
 
-
     trackVisual = new Model("Objects/racetrack/track3.obj");
     carModel = new Model("Objects/chev-nascar/body.obj");
     wheelModel = new Model("Objects/chev-nascar/wheel1.obj");
@@ -227,10 +226,6 @@ int main()
     uiShader.use();
     uiShader.setMat4("projection", uiProjection);
     uiShader.setInt("uiTexture", 0);
-
-    ourShader.use();
-    ourShader.setInt("material.diffuse", 0);
-    ourShader.setInt("material.specular", 1);
 
     pbrShader.use();
     pbrShader.setInt("irradianceMap", 0);
@@ -266,7 +261,7 @@ int main()
     // ---------------------------------
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrComponents;
-    float* data = stbi_loadf("Textures/track_hdr.hdr", &width, &height, &nrComponents, 0);
+    float* data = stbi_loadf("Textures/sky.hdr", &width, &height, &nrComponents, 0);
     unsigned int hdrTexture;
     if (data)
     {
@@ -553,7 +548,7 @@ int main()
         pbrShader.setMat4("projection", projection);
         pbrShader.setMat4("view", view);
         pbrShader.setVec3("camPos", camera.Position);
-
+    
         //track
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
@@ -563,6 +558,16 @@ int main()
         glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
 
 
+        ourShader.use();
+        projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 200.0f);
+        view = camera.GetViewMatrix();
+        glm::mat4 model = glm::mat4(1.0f);
+        ourShader.setMat4("model", model);
+        ourShader.setMat4("projection", projection);
+        ourShader.setMat4("view", view);
+        trackVisual->Draw(ourShader);
+
+        pbrShader.use();
         renderScene(pbrShader);
 
         //Update car position and direction
@@ -612,10 +617,10 @@ int main()
 
 void renderScene(Shader& shader) {
     // Track
-    glm::mat4 model = glm::mat4(1.0f);
+    /*glm::mat4 model = glm::mat4(1.0f);
     shader.setMat4("model", glm::transpose(glm::inverse(glm::mat3(model))));
     shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
-    trackVisual->Draw(shader);
+    trackVisual->Draw(shader);*/
 
     // Render cars based on game state and activation
     if (!gameStarted || (gameStarted && chev.isActive())) {
