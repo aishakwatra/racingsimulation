@@ -172,7 +172,7 @@ void Car::updateModelMatrix(float deltaTime) {
         float adjustedGravity = baseGravity * (carWeight / 1000.0f);  // Heavier cars fall faster
         verticalVelocity -= adjustedGravity * deltaTime;
         position.y += verticalVelocity * deltaTime;
-        currentPitch -= 0.7 * deltaTime;
+        currentPitch -= 0.1 * deltaTime;
         if (position.y <= targetY) {
             position.y = targetY;
             isAirborne = false;
@@ -294,7 +294,7 @@ bool Car::isSharpTurn(float steeringAngle) const {
 
 void Car::steerLeft(float deltaTime) {
 
-    float angleChange = 120.0f * deltaTime; // Degrees per second
+    float angleChange = 120.0f * turnSharpnessFactor * deltaTime; // Degrees per second
     frontLeftWheel.steeringAngle += angleChange;
     frontRightWheel.steeringAngle += angleChange;
 
@@ -311,7 +311,7 @@ void Car::steerLeft(float deltaTime) {
 }
 
 void Car::steerRight(float deltaTime) {
-    float angleChange = -120.0f * deltaTime; // Degrees per second
+    float angleChange = -120.0f * turnSharpnessFactor * deltaTime; // Degrees per second
     frontLeftWheel.steeringAngle += angleChange;
     frontRightWheel.steeringAngle += angleChange;
 

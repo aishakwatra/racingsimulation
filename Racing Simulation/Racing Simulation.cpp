@@ -111,7 +111,7 @@ glm::vec3 lightColors[4] = {
 struct Character {
     unsigned int TextureID;
     glm::ivec2 Size;
-    glm::ivec2 Bearing;
+    glm::ivec2 Bearing; 
     unsigned int Advance;
 };
 
@@ -466,10 +466,13 @@ int main()
     chevConfig.bodyOffset = glm::vec3(0.0f, -1.5f, 0.0f);
     chevConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
     chevConfig.wheelScale = glm::vec3(0.5f, 0.5f, 0.5f);
-    chevConfig.carWeight = 900.0f;
-    chevConfig.maxSpeed = 100.0f;
-    chevConfig.acceleration = 20.0f;
-    chevConfig.brakingForce = 30.0f;
+    chevConfig.carWeight = 1000.0f;
+    chevConfig.maxSpeed = 30.0f;
+    chevConfig.acceleration = 8.0f;
+    chevConfig.brakingForce = 7.5f;
+	chevConfig.turnSharpnessFactor = 1.0f;
+    chevConfig.maxSteeringAngleAtMaxSpeed= 30.0f;
+	chevConfig.maxSteeringAngleAtZeroSpeed = 45.0f;
     chevConfig.frontRightWheelOffset = glm::vec3(-0.58f, -1.2f, 1.10f);
     chevConfig.frontLeftWheelOffset = glm::vec3(0.58f, -1.2f, 1.10f);
     chevConfig.backRightWheelOffset = glm::vec3(-0.58f, -1.2f, -0.80f);
@@ -477,17 +480,21 @@ int main()
 
     cadillacConfig.position = glm::vec3(3.0f, 10.0f,-57.0f);
     cadillacConfig.startPosition = glm::vec3(2.5f, 0.0f, -1.5f);
-    cadillacConfig.bodyOffset = glm::vec3(0.0f, -0.3f, 0.0f);
+    cadillacConfig.bodyOffset = glm::vec3(0.0f, -1.5f, 0.0f);
     cadillacConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
-    cadillacConfig.wheelScale = glm::vec3(0.5f, 0.5f, 0.5f);
-    cadillacConfig.carWeight = 2000.0f;
-    cadillacConfig.maxSpeed = 100.0f;
-    cadillacConfig.acceleration = 10.0f;
-    cadillacConfig.brakingForce = 30.0f;
-    cadillacConfig.frontRightWheelOffset = glm::vec3(-0.45f, -0.6f, 0.80f);
-    cadillacConfig.frontLeftWheelOffset = glm::vec3(0.45f, -0.6f, 0.80f);
-    cadillacConfig.backRightWheelOffset = glm::vec3(-0.45f, -0.6f, -1.00f);
-    cadillacConfig.backLeftWheelOffset = glm::vec3(0.45f, -0.6f, -1.00f);
+    cadillacConfig.wheelScale = glm::vec3(0.4f, 0.4f, 0.4f);
+    cadillacConfig.carWeight = 1300.0f;
+    cadillacConfig.maxSpeed = 25.0f;
+    cadillacConfig.acceleration = 4.0f;
+    cadillacConfig.brakingForce = 3.0f;
+	cadillacConfig.turnSharpnessFactor = 0.7f;
+	cadillacConfig.maxSteeringAngleAtMaxSpeed = 10.0f;
+	cadillacConfig.maxSteeringAngleAtZeroSpeed = 45.0f;
+
+    cadillacConfig.frontRightWheelOffset = glm::vec3(-0.65f, -1.2f, 1.20f);
+    cadillacConfig.frontLeftWheelOffset = glm::vec3(0.65f, -1.2f, 1.20f);
+    cadillacConfig.backRightWheelOffset = glm::vec3(-0.65f, -1.2f, -1.20f);
+    cadillacConfig.backLeftWheelOffset = glm::vec3(0.65f, -1.2f, -1.20f);
 
     gridSize = calculateOptimalGridSize(trackModel, gridHeight);
 
@@ -508,6 +515,7 @@ int main()
     soundManager.preloadSound("accelerate", "Sounds/accelerate_sound2.wav");
     soundManager.preloadSound("music", "Sounds/Plasma.wav");
     soundManager.playSound("music", true);
+	soundManager.setVolume("music", 0.5f);
 
     pbrShader.use();
     for (int i = 0; i < 4; ++i) {
