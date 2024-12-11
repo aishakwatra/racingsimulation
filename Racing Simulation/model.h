@@ -191,36 +191,37 @@ private:
 
     // checks all material textures of a given type and loads the textures if they're not loaded yet.
     // the required info is returned as a Texture struct.
-    vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
-    {
+    vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName) {
         vector<Texture> textures;
-        for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-        {
+        for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
             aiString str;
             mat->GetTexture(type, i, &str);
-            // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
+
+            // Debugging: Output the texture type and path
+            std::cout << "Checking texture: " << str.C_Str() << " for type: " << typeName << std::endl;
+
             bool skip = false;
-            for (unsigned int j = 0; j < textures_loaded.size(); j++)
-            {
-                if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
-                {
-                    std::cout << "Texture already loaded, skipping: " << str.C_Str() << std::endl;
+            for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+                if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
                     textures.push_back(textures_loaded[j]);
-                    skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                    skip = true;
+
+                    // Debugging: Notify that this texture was skipped because it was already loaded
+                    std::cout << "Skipping texture (already loaded): " << str.C_Str() << std::endl;
                     break;
                 }
             }
-            if (!skip)
-            {   // if texture hasn't been loaded already, load it
+            if (!skip) {
+                // If texture hasn't been loaded already, load it
                 Texture texture;
-                texture.id = TextureFromFile(str.C_Str(), this->directory);
+                texture.id = TextureFromFile(str.C_Str(), this->directory);  // Assuming TextureFromFile is your custom function
                 texture.type = typeName;
                 texture.path = str.C_Str();
-
-                std::cout << "Texture loaded successfully: " << str.C_Str() << std::endl;
-
                 textures.push_back(texture);
-                textures_loaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+                textures_loaded.push_back(texture);
+
+                // Debugging: Notify that this texture was successfully loaded
+                std::cout << "Loaded texture: " << str.C_Str() << " as type: " << typeName << std::endl;
             }
         }
         return textures;

@@ -1,8 +1,7 @@
-# Blender 4.2.1 LTS MTL File: 'None'
+# Blender 4.3.1 MTL File: 'None'
 # www.blender.org
 
 newmtl Material.004
-Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
@@ -10,5 +9,5 @@ Ni 1.450000
 d 1.000000
 illum 1
 map_Kd textureSolid.png
-map_Pr textureSolid.png
-map_Pm textureSolid.png
+map_Pm textureSolid _roughness.png
+map_Pr textureSolid _roughness.png

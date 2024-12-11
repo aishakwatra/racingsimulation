@@ -188,12 +188,12 @@ int main()
     // -----------
     Shader skyboxShader("Shaders/skybox/skybox.vs", "Shaders/skybox/skybox.fs");
     std::vector<std::string> faces = {
-    "Textures/skybox/right.jpg",
-    "Textures/skybox/left.jpg",
-    "Textures/skybox/top.jpg",
-    "Textures/skybox/bottom.jpg",
-    "Textures/skybox/front.jpg",
-    "Textures/skybox/back.jpg"
+    "Textures/skybox/sunset/px.jpg",
+    "Textures/skybox/sunset/nx.jpg",
+    "Textures/skybox/sunset/py.jpg",
+    "Textures/skybox/sunset/ny.jpg",
+    "Textures/skybox/sunset/pz.jpg",
+    "Textures/skybox/sunset/nz.jpg"
     };
 
     /*Shader skyboxShader("Shaders/skybox/skybox.vs", "Shaders/skybox/skybox.fs");
@@ -464,8 +464,8 @@ int main()
     chevConfig.position = glm::vec3(-3.0f, 10.0f, -53.0f);
     chevConfig.startPosition = glm::vec3(-2.5f, 0.0f, -1.5f);
     chevConfig.bodyOffset = glm::vec3(0.0f, -1.5f, 0.0f);
-    chevConfig.bodyScale = glm::vec3(0.5f, 0.5f, 0.5f);
-    chevConfig.wheelScale = glm::vec3(0.5f, 0.5f, 0.5f);
+    chevConfig.bodyScale = glm::vec3(0.7f, 0.7f, 0.7f);
+    chevConfig.wheelScale = glm::vec3(0.7f, 0.7f, 0.7f);
     chevConfig.carWeight = 1000.0f;
     chevConfig.maxSpeed = 30.0f;
     chevConfig.acceleration = 8.0f;
@@ -473,10 +473,10 @@ int main()
 	chevConfig.turnSharpnessFactor = 1.0f;
     chevConfig.maxSteeringAngleAtMaxSpeed= 30.0f;
 	chevConfig.maxSteeringAngleAtZeroSpeed = 45.0f;
-    chevConfig.frontRightWheelOffset = glm::vec3(-0.58f, -1.2f, 1.10f);
-    chevConfig.frontLeftWheelOffset = glm::vec3(0.58f, -1.2f, 1.10f);
-    chevConfig.backRightWheelOffset = glm::vec3(-0.58f, -1.2f, -0.80f);
-    chevConfig.backLeftWheelOffset = glm::vec3(0.58f, -1.2f, -0.80f);
+    chevConfig.frontRightWheelOffset = glm::vec3(-0.8f, -1.2f, 1.50f);
+    chevConfig.frontLeftWheelOffset = glm::vec3(0.8f, -1.2f, 1.50f);
+    chevConfig.backRightWheelOffset = glm::vec3(-0.8f, -1.2f, -1.1f);
+    chevConfig.backLeftWheelOffset = glm::vec3(0.8f, -1.2f, -1.1f);
 
     cadillacConfig.position = glm::vec3(3.0f, 10.0f,-57.0f);
     cadillacConfig.startPosition = glm::vec3(2.5f, 0.0f, -1.5f);

@@ -72,8 +72,8 @@ public:
         if (isDragging || !shouldFollow) return;
 
     // Set follow distance directly without lerping
-    float followDistance = glm::mix(5.0f, 10.0f, glm::clamp(carSpeed / maxSpeed, 0.0f, 1.0f));  // Closer positioning
-    float baseCameraHeightOffset = 0.4f;  // Base height offset above the car
+    float followDistance = glm::mix(3.0f, 5.5f, glm::clamp(carSpeed / maxSpeed, 0.0f, 1.0f));  // Closer positioning
+    float baseCameraHeightOffset = 0.2f;  // Base height offset above the car
 
     // Dynamically adjust the camera height offset based on the car's elevation
     float dynamicCameraHeightOffset = carPosition.y + baseCameraHeightOffset;
@@ -83,7 +83,7 @@ public:
 
     // Calculate the side offset based on steering angle and apply lerping only to this component
     glm::vec3 rightVector = glm::normalize(glm::cross(carDirection, glm::vec3(0.0f, 1.0f, 0.0f)));
-    float maxLateralOffset = 2.0f;  // Slightly reduce maximum side offset
+    float maxLateralOffset = 1.0f; // Reduced lateral movement
     float lateralOffset = (steeringAngle / 45.0f) * maxLateralOffset;
 
     // Only the lateral offset is smoothed using lerp
